@@ -1,0 +1,1506 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="theme-color" content="#f6f5fb"><title>Reviewer Notes · IT0049 · Framework Party</title><meta name="description" content="Detailed student-style CodeIgniter and Laravel reviewer notes covering all eight IT0049 PDFs, with highlighted key points, figures, explained code, and original page references."><script src="appearance.js?v=6"></script><link rel="icon" href="assets/favicon.svg"><link rel="stylesheet" href="design.css?v=6"><link rel="stylesheet" href="reviewer.css?v=6"></head><body class="reviewer-page">
+<a class="notes-skip" href="#notes-main">Skip to reviewer</a>
+<header class="notes-topbar"><a class="notes-brand" href="index.html">framework party<span>IT0049 / WEB</span></a><nav aria-label="Website sections"><a href="index.html">Home</a><a href="index.html#guided">Study</a><a class="active" href="reviewer.html" aria-current="page">Reviewer Notes</a><a href="index.html#practice">Practice</a><a href="index.html#materials">Original slides</a></nav></header>
+<div class="notes-layout"><aside class="notes-sidebar" aria-label="Reviewer contents"><a class="notes-sidebar-title" href="#contents">IN THIS REVIEWER</a><ol><li><a href="#module-1"><span>M1</span>CodeIgniter foundations</a></li><li><a href="#module-2"><span>M2</span>CodeIgniter data layer</a></li><li><a href="#module-3"><span>M3</span>CI forms, uploads &amp; CRUD</a></li><li><a href="#module-4"><span>M4</span>CI authentication &amp; sessions</a></li><li><a href="#module-5"><span>M5</span>Laravel foundations</a></li><li><a href="#module-6"><span>M6</span>Laravel data layer</a></li><li><a href="#module-7"><span>M7</span>Laravel forms &amp; uploads</a></li><li><a href="#module-8"><span>M8</span>Laravel CRUD, auth &amp; email</a></li></ol><a class="toc-extra" href="#comparison">Framework comparison</a><a class="toc-extra" href="#coverage">PDF coverage &amp; references</a><p>Read straight through, or jump to a module. Use your browser’s Find to locate a term and Print to save a PDF.</p></aside>
+<main id="notes-main"><header class="notes-cover" id="contents"><span class="notes-kicker">YOUR WEB SUBJECT · THE READING VERSION</span><h1>Reviewer<br><span>notes.</span></h1><p class="notes-lead">CodeIgniter &amp; Laravel, written out like a study notebook.</p><p>A continuous reviewer with definitions, highlighted takeaways, original figures, and code explained in context. Start anywhere; every chapter stays fully open.</p><div class="notes-cover-meta"><span>8 modules</span><span>300 source pages</span><span>Code + figures + examples</span></div><aside class="notes-reading-key"><strong>How to read the annotations</strong><p><mark>Highlights</mark> mark ideas worth remembering. <b>Take note</b> boxes explain important distinctions. <b>Clarification</b> boxes identify source shortcuts or assumptions. Each section links to its original PDF page range.</p></aside><p class="notes-scope">These notes follow your supplied classroom PDFs. Code is rewritten for readability; file labels and comments show context. Short fragments assume surrounding framework setup. Added explanations and corrections are identified rather than presented as verbatim slide content.</p><details class="notes-mobile-contents"><summary>Contents · all 8 modules</summary><ol><li><a href="#module-1"><span>M1</span>CodeIgniter foundations</a></li><li><a href="#module-2"><span>M2</span>CodeIgniter data layer</a></li><li><a href="#module-3"><span>M3</span>CI forms, uploads &amp; CRUD</a></li><li><a href="#module-4"><span>M4</span>CI authentication &amp; sessions</a></li><li><a href="#module-5"><span>M5</span>Laravel foundations</a></li><li><a href="#module-6"><span>M6</span>Laravel data layer</a></li><li><a href="#module-7"><span>M7</span>Laravel forms &amp; uploads</a></li><li><a href="#module-8"><span>M8</span>Laravel CRUD, auth &amp; email</a></li></ol><a class="toc-extra" href="#comparison">Framework comparison</a><a class="toc-extra" href="#coverage">PDF coverage &amp; references</a></details></header>
+<article class="notes-chapter" id="module-1" aria-labelledby="module-title-1"><header class="chapter-heading"><span class="chapter-number">MODULE 01</span><h2 id="module-title-1">CodeIgniter foundations</h2><p>54 source pages · CodeIgniter · <a href="modules/IT0049%20-%20M1%20-%20CodeIgniter%20Foundations.pdf" target="_blank" rel="noopener">Original PDF ↗</a></p></header><nav class="chapter-outline" aria-label="Module 1 sections"><a href="#section-1-1">1.1 The browser, server, and framework</a><a href="#section-1-2">1.2 MVC: know who owns each job</a><a href="#section-1-3">1.3 Installation, folders, and local configuration</a><a href="#section-1-4">1.4 URLs, explicit routes, and captured values</a><a href="#section-1-5">1.5 Controllers, index(), and clean URLs</a><a href="#section-1-6">1.6 Views and controller-to-view data</a></nav><h3 id="section-1-1">1.1 The browser, server, and framework</h3>
+<p class="page-range"><a href="modules/IT0049%20-%20M1%20-%20CodeIgniter%20Foundations.pdf#page=1" target="_blank" rel="noopener">PDF pages 1–9 · Course introduction, objectives, and request–response ↗</a></p>
+<p>A <strong>web application</strong> lets a user work through a browser while application code runs on a server. In this course, PHP is the server-side language. The browser sends an HTTP request, such as <code>GET /about</code>. The server runs the matching code and sends a response, often HTML. The browser displays that response; it does not execute the server’s PHP source.</p>
+<p>The word <strong>request</strong> means the incoming message asking the application to do something. The <strong>response</strong> is what the server sends back. A URL identifies the destination, while the HTTP method helps express the action. Merely typing a URL into the address bar normally makes a GET request.</p>
+<figure class="notes-flow"><ol><li><b>Browser</b><span>GET /about</span></li><li><b>Server / PHP</b><span>Run application code</span></li><li><b>Response</b><span>Return HTML</span></li><li><b>Browser</b><span>Display the page</span></li></ol><figcaption>Figure 1. Request and response are different messages. The PHP work happens between them. Redrawn from M1, pp. 6–7.</figcaption></figure>
+<p>A <strong>framework</strong> supplies structure and reusable tools for tasks that repeat across web applications: routing, database access, validation, security features, and organizing files. Without shared structure, a developer can end up repeating setup and mixing SQL, validation, and HTML in every page. Framework conventions give those responsibilities predictable locations.</p>
+<aside class="notes-important"><strong>Take note</strong><p><mark>The framework supplies tools; the developer still writes the application’s rules.</mark> Built-in security tools help only when the application uses and configures them correctly.</p></aside>
+<h3 id="section-1-2">1.2 MVC: know who owns each job</h3>
+<p class="page-range"><a href="modules/IT0049%20-%20M1%20-%20CodeIgniter%20Foundations.pdf#page=10" target="_blank" rel="noopener">PDF pages 10–18 · Responsibilities and request flow ↗</a></p>
+<p><strong>MVC</strong> stands for Model–View–Controller. It separates responsibilities so that a change to the interface does not require rewriting the data-access layer. These are cooperating parts of an application, not three unrelated definitions to memorize.</p>
+<div class="notes-table" tabindex="0" role="region" aria-label="Reference table 1"><table>
+<thead>
+<tr>
+<th>Part</th>
+<th>Main responsibility</th>
+<th>CodeIgniter location</th>
+<th>Task-manager example</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Model</td>
+<td>Data access and related data/business rules</td>
+<td><code>app/Models</code></td>
+<td>Retrieve pending tasks</td>
+</tr>
+<tr>
+<td>View</td>
+<td>Presentation of supplied data</td>
+<td><code>app/Views</code></td>
+<td>Print a task list as HTML</td>
+</tr>
+<tr>
+<td>Controller</td>
+<td>Coordinate the request and response</td>
+<td><code>app/Controllers</code></td>
+<td>Ask for tasks, then choose a view</td>
+</tr>
+</tbody>
+</table></div>
+<p>For a task-list request, the route selects a controller method. The controller calls a model, receives the records, and passes them to a view. The rendered HTML becomes the response. In the course’s MVC arrangement, the model does not build the page layout and the view does not query the database.</p>
+<p><strong>Example:</strong> changing the color and layout of a task list is a view change. Filtering the query to return only pending tasks is data-access work. Choosing which records and template to use for a request is controller coordination.</p>
+<p>Separation supports maintenance, teamwork, testing, and reuse. The same data layer can support multiple presentations. This does not mean every feature requires a database call: an About page can use a route, controller, and view without needing a model.</p>
+<figure><a href="slides/m1/015.webp" target="_blank" rel="noopener" aria-label="Open original figure at full size"><img src="slides/m1/015.webp" width="1600" height="900" loading="lazy" alt="Original Module 1 page 15 diagram showing the browser, controller, model, view, and returned page."></a><figcaption>Figure 2. Original MVC request-flow diagram, M1 p. 15. Read the numbered arrows in order; the controller coordinates the data and presentation.</figcaption></figure>
+<p><strong>Memory cue:</strong> Model = data; View = display; Controller = coordinator. CodeIgniter 4 is the PHP MVC framework used in the first four modules. The course introduces it as lightweight and beginner-friendly; the responsibility split matters more than promotional descriptions of a framework.</p>
+<h3 id="section-1-3">1.3 Installation, folders, and local configuration</h3>
+<p class="page-range"><a href="modules/IT0049%20-%20M1%20-%20CodeIgniter%20Foundations.pdf#page=19" target="_blank" rel="noopener">PDF pages 19–32 · Setup and environment settings ↗</a></p>
+<p>The module lists PHP 8.1 or newer, Composer, an editor, and a local PHP/MySQL setup such as XAMPP. Treat the stated PHP version as the PDF’s classroom requirement; an actual framework release may require a different minimum. Composer manages PHP packages. Install it on the machine, then check it with <code>composer --version</code>.</p>
+<pre tabindex="0"><code class="language-sh">composer create-project codeigniter4/appstarter myproject
+cd myproject
+php spark serve
+</code></pre>
+<p><code>create-project</code> downloads the starter into <code>myproject</code>. Run the remaining commands <strong>inside that project directory</strong>. <strong>Spark</strong> is CodeIgniter’s command-line tool. <code>php spark serve</code> starts its development server, usually at <code>http://localhost:8080</code>. The PHP executable still has to exist; this command simply avoids needing a separate Apache server for that local workflow.</p>
+<p>The slides also show downloading the framework ZIP and running Apache through XAMPP. These are alternative setup paths, not commands to run simultaneously. Under the illustrated XAMPP arrangement, a classroom URL may include <code>/your-folder/public</code>. Keep the public-directory distinction clear when comparing it with Spark’s URL.</p>
+<div class="notes-table" tabindex="0" role="region" aria-label="Reference table 2"><table>
+<thead>
+<tr>
+<th>Folder or file</th>
+<th>What belongs there</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>app/Controllers</code></td>
+<td>Request-handling controller classes</td>
+</tr>
+<tr>
+<td><code>app/Models</code></td>
+<td>Data-access model classes</td>
+</tr>
+<tr>
+<td><code>app/Views</code></td>
+<td>HTML/PHP templates</td>
+</tr>
+<tr>
+<td><code>app/Config</code></td>
+<td>Application settings, including <code>Routes.php</code></td>
+</tr>
+<tr>
+<td><code>public/</code></td>
+<td>Web entry point and publicly served assets</td>
+</tr>
+<tr>
+<td><code>writable/</code></td>
+<td>Logs, cache, and other generated writable data</td>
+</tr>
+<tr>
+<td><code>vendor/</code></td>
+<td>Composer-managed packages in a Composer installation</td>
+</tr>
+<tr>
+<td><code>.env</code></td>
+<td>Environment-specific local settings</td>
+</tr>
+</tbody>
+</table></div>
+<p>The manual download and Composer layouts can differ. The slide’s reference to <code>system/</code> versus <code>vendor/</code> describes those distribution layouts; it does not change where your controllers, models, and views belong.</p>
+<aside class="notes-important"><strong>Public means publicly reachable</strong><p><mark>The web server should point at <code>public/</code>.</mark> Application source, dependencies, credentials, and writable internal data should not become downloadable just because the project folder is on the server.</p></aside>
+<p>The provided <code>env</code> template is renamed/copied to <code>.env</code> for local configuration. The following completes the missing closing quote visible in the PDF’s example:</p>
+<pre tabindex="0"><code class="language-ini">CI_ENVIRONMENT = development
+app.baseURL = 'http://localhost:8080/'
+</code></pre>
+<p><code>CI_ENVIRONMENT</code> selects environment behavior. <code>app.baseURL</code> is the application’s base address; <mark>keep its trailing slash</mark>. Match it to the server you actually use. <code>app/Config/App.php</code> provides application configuration too; <code>.env</code> can supply the local value. The PDF also sets <code>$indexPage = ''</code> to omit <code>index.php</code> from generated URLs. That setting alone does not configure Apache rewriting.</p>
+<h3 id="section-1-4">1.4 URLs, explicit routes, and captured values</h3>
+<p class="page-range"><a href="modules/IT0049%20-%20M1%20-%20CodeIgniter%20Foundations.pdf#page=33" target="_blank" rel="noopener">PDF pages 33–38 · URL terminology and route patterns ↗</a></p>
+<p>For <code>https://www.example.com/blog/news/2022/10?page=2</code>, separate the base address, path, and query string. The route path is considered relative to the application’s base. <code>page=2</code> is query data, not another slash-separated path segment.</p>
+<p>An explicit CodeIgniter route combines <strong>HTTP method + path pattern + handler</strong>. Routes belong in <code>app/Config/Routes.php</code>.</p>
+<pre tabindex="0"><code class="language-php">$routes-&gt;get('/about', 'Pages::about');
+$routes-&gt;get('/profile/(:num)', 'Pages::profile/$1');
+</code></pre>
+<p>The first route answers GET <code>/about</code> by running <code>about()</code> in <code>Pages</code>. In the second, the numeric URL component is captured and passed as the first argument. Visiting <code>/profile/123</code> supplies <code>123</code> to <code>profile($id)</code>. <code>$1</code> means the <strong>first captured placeholder</strong>, not a fixed literal user ID.</p>
+<div class="notes-table" tabindex="0" role="region" aria-label="Reference table 3"><table>
+<thead>
+<tr>
+<th>Placeholder</th>
+<th>What to recognize</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>(:num)</code></td>
+<td>Numeric route component, used for an ID in these examples</td>
+</tr>
+<tr>
+<td><code>(:segment)</code></td>
+<td>One component; cannot include <code>/</code></td>
+</tr>
+<tr>
+<td><code>(:any)</code></td>
+<td>The remaining path; may span multiple components</td>
+</tr>
+<tr>
+<td><code>(:alpha)</code></td>
+<td>Alphabetic characters</td>
+</tr>
+<tr>
+<td><code>(:alphanum)</code></td>
+<td>Alphabetic and numeric characters</td>
+</tr>
+<tr>
+<td><code>(:hash)</code></td>
+<td>Same matching behavior as <code>(:segment)</code>, but communicates intent</td>
+</tr>
+</tbody>
+</table></div>
+<p><strong>Do not mix two routing explanations.</strong> The PDF’s <code>/blog/post/20261231</code> segment illustration helps label controller/action/argument-style URLs. With an explicit route, however, the handler is whatever the route declares; a URL does not have to use the controller’s class name. A captured ID is also not proof that the record exists or that the visitor may access it.</p>
+<h3 id="section-1-5">1.5 Controllers, index(), and clean URLs</h3>
+<p class="page-range"><a href="modules/IT0049%20-%20M1%20-%20CodeIgniter%20Foundations.pdf#page=39" target="_blank" rel="noopener">PDF pages 39–44 · Class structure and URL handling ↗</a></p>
+<pre tabindex="0"><code class="language-php">&lt;?php
+namespace App\Controllers;
+
+class Pages extends BaseController
+{
+    public function about()
+    {
+        return 'This is the about page.';
+    }
+}
+</code></pre>
+<p>Save this class as <code>app/Controllers/Pages.php</code>. The namespace places it in the application’s controller namespace. <code>extends BaseController</code> inherits the project’s base controller behavior. A public method is an action that an appropriate route can target. Returning text creates a simple response; later, returning a view creates an HTML page.</p>
+<aside class="notes-clarify"><strong>Clarification: index is not an automatic first step</strong><p>M1 p. 42 calls <code>index()</code> the first function to execute. More precisely, it is a conventional/default action when routing selects it. An explicit <code>Pages::about</code> route calls <code>about()</code> directly; it does not run <code>index()</code> first. See the <a href="https://codeigniter4.github.io/userguide/incoming/routing.html#default-method" target="_blank" rel="noopener">official default-method explanation</a>.</p></aside>
+<p>To map the root URL explicitly, use <code>$routes-&gt;get('/', 'Pages::index');</code>. The method name alone does not register that URL.</p>
+<p>The clean-URL slides discuss removing <code>public/index.php/</code> from a classroom URL. Their alternatives include moving <code>index.php</code>/<code>.htaccess</code>, which the PDF discourages for hosted applications, and a root rewrite into <code>public/</code>. The underlying distinction is between <strong>the server’s document root</strong>, <strong>rewrite behavior</strong>, and <strong>generated URL settings</strong>. Prefer the intended <code>public/</code> document root; do not treat relocating files as a universally safe deployment recipe. The supplied Apache <code>.htaccess</code> examples depend on Apache and rewrite support.</p>
+<h3 id="section-1-6">1.6 Views and controller-to-view data</h3>
+<p class="page-range"><a href="modules/IT0049%20-%20M1%20-%20CodeIgniter%20Foundations.pdf#page=45" target="_blank" rel="noopener">PDF pages 45–54 · Rendering, data, organization, and recap ↗</a></p>
+<p>Create <code>app/Views/about.php</code>, then render it with <code>return view('about');</code>. The view name omits <code>.php</code>. <code>view()</code> renders a template; it is not a redirect to another URL.</p>
+<pre tabindex="0"><code class="language-php">// In Pages::about()
+$data = ['title' =&gt; 'Sample Page', 'name' =&gt; 'Pages'];
+return view('about', $data);
+</code></pre>
+<pre tabindex="0"><code class="language-php">&lt;!-- app/Views/about.php --&gt;
+&lt;h1&gt;&lt;?= esc($title) ?&gt;&lt;/h1&gt;
+&lt;p&gt;About &lt;?= esc($name) ?&gt;&lt;/p&gt;
+</code></pre>
+<p>The array key <code>name</code> becomes <code>$name</code> in the view. The controller could obtain that value from an array, a database, or another service; the view only needs the supplied value. The <code>esc()</code> calls are an explicit safe-output addition to the PDF’s very short dynamic-data example.</p>
+<p><strong>Subdirectories:</strong> <code>view('directory-name/about')</code> looks under <code>app/Views/directory-name/about.php</code>.</p>
+<p><strong>Several templates in one response:</strong> the course concatenates rendered views using the PHP dot operator:</p>
+<pre tabindex="0"><code class="language-php">return view('header', $data)
+    . view('menu')
+    . view('main', $data)
+    . view('footer');
+</code></pre>
+<p>This produces one response made from several rendered pieces. Pass data to the templates that need it. The order controls the resulting page order.</p>
+<p><strong>Before leaving M1:</strong> be able to trace route → controller → view → browser, identify each project folder, and explain why a view receives data rather than fetching it. A missing namespace, wrong view name, unmatched HTTP method, or stale browser output can make correct-looking code appear broken. The final pages recap these mistakes and provide a Q&amp;A prompt; they add no separate API.</p>
+<a class="back-contents" href="#contents">↑ Back to contents</a></article><article class="notes-chapter" id="module-2" aria-labelledby="module-title-2"><header class="chapter-heading"><span class="chapter-number">MODULE 02</span><h2 id="module-title-2">CodeIgniter data layer</h2><p>36 source pages · CodeIgniter · <a href="modules/IT0049%20-%20M2%20-%20CodeIgniter%20Data%20Layer.pdf" target="_blank" rel="noopener">Original PDF ↗</a></p></header><nav class="chapter-outline" aria-label="Module 2 sections"><a href="#section-2-1">2.1 What the database adds</a><a href="#section-2-2">2.2 Database configuration and useful error clues</a><a href="#section-2-3">2.3 A model gives a table a PHP interface</a><a href="#section-2-4">2.4 Read queries: selection, filtering, order, and execution</a><a href="#section-2-5">2.5 Connect the model, controller, route, and list view</a><a href="#section-2-6">2.6 One-record pages and missing records</a></nav><h3 id="section-2-1">2.1 What the database adds</h3>
+<p class="page-range"><a href="modules/IT0049%20-%20M2%20-%20CodeIgniter%20Data%20Layer.pdf#page=1" target="_blank" rel="noopener">PDF pages 1–9 · Objectives, persistent records, schema, and sample data ↗</a></p>
+<p>A database holds records that survive application restarts and can be read or changed across requests. A hard-coded array is useful for demonstrating a view, but it does not become a persistent shared task list merely because it looks like one in the browser.</p>
+<p>The course uses a <strong>tasks</strong> table throughout the examples:</p>
+<pre tabindex="0"><code class="language-sql">CREATE TABLE tasks (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    title VARCHAR(150) NOT NULL,
+    status VARCHAR(20) DEFAULT 'pending',
+    created_at DATETIME
+);
+
+INSERT INTO tasks (title, status, created_at) VALUES
+('Buy groceries', 'pending', NOW()),
+('Submit report', 'pending', NOW()),
+('Fix login bug', 'done', NOW());
+</code></pre>
+<p><code>id</code> uniquely identifies a row and is generated automatically. <code>title</code> allows up to 150 characters and cannot be SQL NULL. <code>status</code> defaults to <code>pending</code> if omitted. <code>created_at</code> stores a date and time; this schema does not itself give that column an automatic default. The sample INSERT explicitly supplies <code>NOW()</code>.</p>
+<aside class="notes-important"><strong>Two separate setup steps</strong><p><mark>Creating a table does not insert its sample records.</mark> An empty task list can mean the connection and query worked correctly but the table has no rows.</p></aside>
+<h3 id="section-2-2">2.2 Database configuration and useful error clues</h3>
+<p class="page-range"><a href="modules/IT0049%20-%20M2%20-%20CodeIgniter%20Data%20Layer.pdf#page=10" target="_blank" rel="noopener">PDF pages 10–16 · Environment settings and troubleshooting ↗</a></p>
+<p>The local <code>.env</code> connection identifies the server, database, account, password, and driver:</p>
+<pre tabindex="0"><code class="language-ini">database.default.hostname = localhost
+database.default.database = your_database_name
+database.default.username = root
+database.default.password =
+database.default.DBDriver = MySQLi
+</code></pre>
+<p>The blank password and root account belong to the illustrated local setup; substitute the actual local account values rather than assuming every database uses them. <code>app/Config/Database.php</code> defines database configuration defaults. Matching <code>.env</code> values override those defaults, so avoid keeping conflicting credentials in multiple places. Local secrets should not be committed to a repository.</p>
+<div class="notes-table" tabindex="0" role="region" aria-label="Reference table 4"><table>
+<thead>
+<tr>
+<th>Symptom in the course</th>
+<th>What to check first</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Unknown database</td>
+<td>The configured database name actually exists</td>
+</tr>
+<tr>
+<td>Access denied</td>
+<td>Username, password, and the account’s access</td>
+</tr>
+<tr>
+<td>Connection refused</td>
+<td>MySQL is running and the configured host/port is reachable</td>
+</tr>
+<tr>
+<td>Edited settings seem ignored</td>
+<td>Correct <code>.env</code> file, key spelling, and active configuration</td>
+</tr>
+</tbody>
+</table></div>
+<aside class="notes-clarify"><strong>Clarification: test with an actual database operation</strong><p>M2 p. 14 says to visit any page to test the connection. A static page may never access the database. Load a database-backed route or make a query before concluding the connection works. Reaching the CodeIgniter welcome page proves the application starts, not that every database credential is valid.</p></aside>
+<h3 id="section-2-3">2.3 A model gives a table a PHP interface</h3>
+<p class="page-range"><a href="modules/IT0049%20-%20M2%20-%20CodeIgniter%20Data%20Layer.pdf#page=17" target="_blank" rel="noopener">PDF pages 17–20 · TaskModel and model properties ↗</a></p>
+<pre tabindex="0"><code class="language-php">&lt;?php
+namespace App\Models;
+
+use CodeIgniter\Model;
+
+class TaskModel extends Model
+{
+    protected $table = 'tasks';
+    protected $primaryKey = 'id';
+    protected $allowedFields = ['title', 'status'];
+}
+</code></pre>
+<p>Save this as <code>app/Models/TaskModel.php</code>. The class extends CodeIgniter’s <code>Model</code>, which provides common record methods. <code>$table</code> selects the database table. <code>$primaryKey</code> identifies the column used by primary-key operations such as <code>find($id)</code>. <code>$allowedFields</code> lists fields accepted by protected mass-assignment-style writes through the model.</p>
+<p><mark>An allowed field is not automatically a valid field.</mark> Allowing <code>title</code> means that field may be written through the model; validation still has to decide whether the submitted title is acceptable. Adding a field here also does not create a database column. Schema, validation, and writable-field configuration are separate responsibilities.</p>
+<p>The course uses one model per table as its starting convention. That helps beginners map a class to a table; do not interpret it as a requirement that every possible application must have exactly one class for every table.</p>
+<h3 id="section-2-4">2.4 Read queries: selection, filtering, order, and execution</h3>
+<p class="page-range"><a href="modules/IT0049%20-%20M2%20-%20CodeIgniter%20Data%20Layer.pdf#page=21" target="_blank" rel="noopener">PDF pages 21–27 · Query Builder and model retrieval ↗</a></p>
+<p><strong>Query Builder</strong> lets PHP method calls describe a query. Normal value arguments are escaped/bound by the framework rather than being pasted into hand-built SQL. This reduces routine SQL mistakes; it does not make arbitrary raw SQL fragments or unvalidated user-chosen SQL identifiers safe.</p>
+<pre tabindex="0"><code class="language-php">$model = new \App\Models\TaskModel();
+
+$all = $model-&gt;findAll();
+$one = $model-&gt;find(3);
+
+$pending = $model
+    -&gt;where('status', 'pending')
+    -&gt;orderBy('created_at', 'DESC')
+    -&gt;findAll();
+</code></pre>
+<p>Read the chain as: <strong>keep matching rows → choose their order → retrieve them</strong>. <code>where()</code> restricts results; <code>orderBy()</code> sorts them. <code>DESC</code> means descending and <code>ASC</code> ascending. For a creation date, descending usually places newer records first. Equal timestamps may need an additional ordering key if a precise tie order matters.</p>
+<div class="notes-table" tabindex="0" role="region" aria-label="Reference table 5"><table>
+<thead>
+<tr>
+<th>Method</th>
+<th>Purpose</th>
+<th>Typical result</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>findAll()</code></td>
+<td>Retrieve the model’s matching records</td>
+<td>Many rows</td>
+</tr>
+<tr>
+<td><code>find($id)</code></td>
+<td>Retrieve one primary-key match</td>
+<td>One row or null</td>
+</tr>
+<tr>
+<td><code>where('status', 'pending')</code></td>
+<td>Add a condition</td>
+<td>Query/model chain, not the final list</td>
+</tr>
+<tr>
+<td><code>orderBy('created_at', 'DESC')</code></td>
+<td>Add ordering</td>
+<td>Query/model chain</td>
+</tr>
+<tr>
+<td><code>like('title', 'report')</code></td>
+<td>Add text-search matching</td>
+<td>Query/model chain</td>
+</tr>
+<tr>
+<td><code>limit(5)</code></td>
+<td>Limit returned rows</td>
+<td>Query/model chain</td>
+</tr>
+<tr>
+<td><code>countAllResults()</code></td>
+<td>Count matching records</td>
+<td>A count</td>
+</tr>
+<tr>
+<td><code>first()</code></td>
+<td>Retrieve the first matching record</td>
+<td>One row or null</td>
+</tr>
+</tbody>
+</table></div>
+<p>The default examples work with <strong>associative arrays</strong>, hence <code>$task['title']</code>. A model can be configured to use other return types, but do not switch syntax halfway through the course example.</p>
+<h3 id="section-2-5">2.5 Connect the model, controller, route, and list view</h3>
+<p class="page-range"><a href="modules/IT0049%20-%20M2%20-%20CodeIgniter%20Data%20Layer.pdf#page=28" target="_blank" rel="noopener">PDF pages 28–31 · Complete list-page handoff ↗</a></p>
+<pre tabindex="0"><code class="language-php">// app/Config/Routes.php
+$routes-&gt;get('/tasks', 'Tasks::index');
+</code></pre>
+<pre tabindex="0"><code class="language-php">// app/Controllers/Tasks.php
+&lt;?php
+namespace App\Controllers;
+use App\Models\TaskModel;
+
+class Tasks extends BaseController
+{
+    public function index()
+    {
+        $model = new TaskModel();
+        $data['tasks'] = $model-&gt;findAll();
+        return view('tasks/index', $data);
+    }
+}
+</code></pre>
+<pre tabindex="0"><code class="language-php">&lt;!-- app/Views/tasks/index.php --&gt;
+&lt;h1&gt;My Tasks&lt;/h1&gt;
+&lt;ul&gt;
+&lt;?php foreach ($tasks as $task): ?&gt;
+    &lt;li&gt;&lt;?= esc($task['title']) ?&gt; — &lt;?= esc($task['status']) ?&gt;&lt;/li&gt;
+&lt;?php endforeach; ?&gt;
+&lt;/ul&gt;
+</code></pre>
+<p>The controller creates the model, retrieves records, and passes a <code>tasks</code> key to the view. That key becomes <code>$tasks</code>. <code>foreach</code> visits each row, assigning it to <code>$task</code>. <code>esc()</code> escapes display values so text is not interpreted as HTML markup.</p>
+<p>The alternative <code>$tasks = model(TaskModel::class)-&gt;findAll();</code> uses CodeIgniter’s <code>model()</code> helper instead of explicit <code>new TaskModel()</code>. Both styles in the PDF reach the same kind of model operation. Use the necessary import or fully qualified class name.</p>
+<figure><a href="slides/m2/030.webp" target="_blank" rel="noopener" aria-label="Open original figure at full size"><img src="slides/m2/030.webp" width="1600" height="900" loading="lazy" alt="Original Module 2 page 30 showing a foreach loop and escaped task-title and status output."></a><figcaption>Figure 3. Original task-list view, M2 p. 30. Notice the plural collection <code>$tasks</code>, singular loop row <code>$task</code>, and escaped output.</figcaption></figure>
+<h3 id="section-2-6">2.6 One-record pages and missing records</h3>
+<p class="page-range"><a href="modules/IT0049%20-%20M2%20-%20CodeIgniter%20Data%20Layer.pdf#page=32" target="_blank" rel="noopener">PDF pages 32–36 · Details, null handling, and recap ↗</a></p>
+<pre tabindex="0"><code class="language-php">// Route
+$routes-&gt;get('/tasks/(:num)', 'Tasks::show/$1');
+
+// In Tasks controller
+public function show($id)
+{
+    $model = new TaskModel();
+    $task = $model-&gt;find($id);
+    if ($task === null) {
+        throw \CodeIgniter\Exceptions\PageNotFoundException::forPageNotFound();
+    }
+    return view('tasks/show', ['task' =&gt; $task]);
+}
+</code></pre>
+<pre tabindex="0"><code class="language-php">&lt;!-- app/Views/tasks/show.php --&gt;
+&lt;h1&gt;&lt;?= esc($task['title']) ?&gt;&lt;/h1&gt;
+&lt;p&gt;Status: &lt;?= esc($task['status']) ?&gt;&lt;/p&gt;
+</code></pre>
+<p>The route supplies the ID; <code>find()</code> searches by the configured primary key. A numeric URL component does not guarantee a matching row. <mark>Check for null before trying to display a field.</mark> The fully qualified exception in this rewritten example makes the class reference explicit; it expresses the missing-record response introduced in the slides.</p>
+<p><strong>M2 in one chain:</strong> <code>.env</code> connects → model identifies the table → query retrieves records → controller passes an array → view displays escaped values. If records fail to appear, check the database and query result before blaming the view. Common faults are a wrong table name, missing writable-field configuration during saves, missing sample rows, and using a nonexistent record without checking it. The opening objectives and final recap/Q&amp;A frame these same database tasks.</p>
+<a class="back-contents" href="#contents">↑ Back to contents</a></article><article class="notes-chapter" id="module-3" aria-labelledby="module-title-3"><header class="chapter-heading"><span class="chapter-number">MODULE 03</span><h2 id="module-title-3">CI forms, uploads &amp; CRUD</h2><p>36 source pages · CodeIgniter · <a href="modules/IT0049%20-%20M3%20-%20Forms%2C%20Validation%2C%20File%20Upload%2C%20and%20CRUD.pdf" target="_blank" rel="noopener">Original PDF ↗</a></p></header><nav class="chapter-outline" aria-label="Module 3 sections"><a href="#section-3-1">3.1 The complete form workflow</a><a href="#section-3-2">3.2 Validation rules, errors, and old input</a><a href="#section-3-3">3.3 CRUD: four operations, one model</a><a href="#section-3-4">3.4 File uploads are not ordinary text fields</a><a href="#section-3-5">3.5 Move, prepare, persist, and display the attachment</a></nav><h3 id="section-3-1">3.1 The complete form workflow</h3>
+<p class="page-range"><a href="modules/IT0049%20-%20M3%20-%20Forms%2C%20Validation%2C%20File%20Upload%2C%20and%20CRUD.pdf#page=1" target="_blank" rel="noopener">PDF pages 1–9 · Objectives, request methods, CSRF, and submitted values ↗</a></p>
+<p>A form is the interface for collecting data; it is not proof that the data is correct. A visitor can send blank values, unexpected field names, or a request constructed without your page. <mark>Validate on the server before writing the record.</mark> Browser-side checks alone are not the controller’s validation.</p>
+<p>The course uses two routes for adding a task:</p>
+<pre tabindex="0"><code class="language-php">$routes-&gt;get('/tasks/new', 'Tasks::new');
+$routes-&gt;post('/tasks', 'Tasks::create');
+</code></pre>
+<p>GET displays the form. POST submits data to the create action. The same path can serve different purposes under different HTTP methods. Use <code>php spark routes</code> to inspect registered method/path/handler combinations before debugging a form that seems to go nowhere.</p>
+<pre tabindex="0"><code class="language-php">&lt;!-- app/Views/tasks/new.php --&gt;
+&lt;form method=&quot;post&quot; action=&quot;&lt;?= site_url('tasks') ?&gt;&quot;&gt;
+    &lt;?= csrf_field() ?&gt;
+    &lt;label for=&quot;title&quot;&gt;Title&lt;/label&gt;
+    &lt;input id=&quot;title&quot; type=&quot;text&quot; name=&quot;title&quot;
+           value=&quot;&lt;?= old('title') ?&gt;&quot;&gt;
+    &lt;?= validation_show_error('title') ?&gt;
+    &lt;button type=&quot;submit&quot;&gt;Add Task&lt;/button&gt;
+&lt;/form&gt;
+</code></pre>
+<p><code>action</code> is the destination URL. <code>method</code> determines the request method. <code>name=&quot;title&quot;</code> determines the submitted key, so the controller, validation rule, and error lookup must use <code>title</code> too. <code>site_url()</code> builds an application URL instead of assuming a fixed folder location. The controller reads the value through <code>$this-&gt;request-&gt;getPost('title')</code> rather than relying directly on <code>$_POST</code>.</p>
+<p><code>csrf_field()</code> renders a hidden CSRF-token field. <strong>CSRF</strong> protection checks that a submitted token matches the expected request/session context. The hidden field must be paired with enabled framework CSRF protection; adding an input alone does not enforce a check. CSRF, input validation, authentication, and output escaping solve different problems.</p>
+<figure class="notes-flow"><ol><li><b>GET form</b><span>Display fields</span></li><li><b>POST input</b><span>Send named values</span></li><li><b>Validate</b><span>Reject or accept</span></li><li><b>Save + redirect</b><span>Show updated records</span></li></ol><figcaption>Figure 4. Form lifecycle from M3, pp. 7–18. On failure, return to the form with old input and errors instead of saving.</figcaption></figure>
+<h3 id="section-3-2">3.2 Validation rules, errors, and old input</h3>
+<p class="page-range"><a href="modules/IT0049%20-%20M3%20-%20Forms%2C%20Validation%2C%20File%20Upload%2C%20and%20CRUD.pdf#page=10" target="_blank" rel="noopener">PDF pages 10–15 · Validation gate and feedback ↗</a></p>
+<pre tabindex="0"><code class="language-php">$rules = [
+    'title' =&gt; 'required|min_length[3]|max_length[150]',
+];
+
+if (! $this-&gt;validate($rules)) {
+    return redirect()-&gt;back()-&gt;withInput();
+}
+</code></pre>
+<p>The pipe separates rules for one field. A title must satisfy <strong>all</strong> listed rules. The failure branch returns early, so saving code after it runs only when validation passed. <code>withInput()</code> carries input and validation feedback through the redirect. In the form, <code>old('title')</code> restores the previous text and <code>validation_show_error('title')</code> displays the field’s error.</p>
+<div class="notes-table" tabindex="0" role="region" aria-label="Reference table 6"><table>
+<thead>
+<tr>
+<th>Course rule</th>
+<th>Meaning to remember</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>required</code></td>
+<td>A required value must be supplied</td>
+</tr>
+<tr>
+<td><code>min_length[3]</code></td>
+<td>Minimum of three characters</td>
+</tr>
+<tr>
+<td><code>max_length[150]</code></td>
+<td>Maximum of 150 characters</td>
+</tr>
+<tr>
+<td><code>valid_email</code></td>
+<td>Validate the email-address format</td>
+</tr>
+<tr>
+<td><code>numeric</code></td>
+<td>Check numeric input; do not use its name as a substitute for an exact integer-only requirement</td>
+</tr>
+<tr>
+<td><code>is_unique[tasks.title]</code></td>
+<td>Check uniqueness against the specified table and column</td>
+</tr>
+</tbody>
+</table></div>
+<p><strong>Example:</strong> a two-character title fails <code>min_length[3]</code>. The user should return to the form, see the entered value, and learn what to correct. The controller should not insert the invalid row and then display an error afterward.</p>
+<aside class="notes-clarify"><strong>Precision note: numeric is not the same as integer-only</strong><p>The slide abbreviates <code>numeric</code> as “digits only.” Choose a rule that matches the actual requirement; CodeIgniter separately lists <code>integer</code>, <code>is_natural</code>, and <code>is_natural_no_zero</code>. See the <a href="https://codeigniter4.github.io/userguide/libraries/validation.html#rules-for-general-use" target="_blank" rel="noopener">official rule reference</a>. Validation also does not replace output escaping or record-access checks.</p></aside>
+<h3 id="section-3-3">3.3 CRUD: four operations, one model</h3>
+<p class="page-range"><a href="modules/IT0049%20-%20M3%20-%20Forms%2C%20Validation%2C%20File%20Upload%2C%20and%20CRUD.pdf#page=16" target="_blank" rel="noopener">PDF pages 16–23 · Insert, retrieve, update, and delete ↗</a></p>
+<p><strong>CRUD</strong> means Create, Read, Update, and Delete. CodeIgniter’s task controller handles requests and calls <code>TaskModel</code> for the table operation. Do not put repeated SQL in a view.</p>
+<div class="notes-table" tabindex="0" role="region" aria-label="Reference table 7"><table>
+<thead>
+<tr>
+<th>Operation</th>
+<th>Model method in these modules</th>
+<th>Main effect</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Create</td>
+<td><code>$model-&gt;insert($data)</code></td>
+<td>Add a row</td>
+</tr>
+<tr>
+<td>Read many</td>
+<td><code>$model-&gt;findAll()</code></td>
+<td>Retrieve rows</td>
+</tr>
+<tr>
+<td>Read one</td>
+<td><code>$model-&gt;find($id)</code></td>
+<td>Retrieve a primary-key match</td>
+</tr>
+<tr>
+<td>Update</td>
+<td><code>$model-&gt;update($id, $data)</code></td>
+<td>Change the specified row</td>
+</tr>
+<tr>
+<td>Delete</td>
+<td><code>$model-&gt;delete($id)</code></td>
+<td>Delete the specified row under the model’s configured behavior</td>
+</tr>
+</tbody>
+</table></div>
+<pre tabindex="0"><code class="language-php">// In the Tasks controller; import App\Models\TaskModel.
+public function create()
+{
+    $rules = ['title' =&gt; 'required|min_length[3]|max_length[150]'];
+    if (! $this-&gt;validate($rules)) {
+        return redirect()-&gt;back()-&gt;withInput();
+    }
+    $model = new TaskModel();
+    $model-&gt;insert([
+        'title' =&gt; $this-&gt;request-&gt;getPost('title'),
+        'status' =&gt; 'pending',
+    ]);
+    return redirect()-&gt;to('/tasks');
+}
+</code></pre>
+<p>This rewritten create action combines the module’s validation and insert examples. Notice that the server sets <code>status</code> to <code>pending</code> rather than accepting an arbitrary posted status. Ensure the model allows the written fields and the table contains them. Handle persistence failures appropriately in a complete application; these teaching fragments focus on the normal workflow.</p>
+<p><strong>Editing has two stages:</strong> first retrieve the selected task and show an edit view, then receive the edited submission, validate it, and update that task. Check for a missing record as in M2. The form can use:</p>
+<pre tabindex="0"><code class="language-php">&lt;input name=&quot;title&quot; value=&quot;&lt;?= old('title', $task['title']) ?&gt;&quot;&gt;
+</code></pre>
+<p>The first argument names the old submitted input. The second is the saved value used when old input is unavailable. <strong>Old input takes priority over the database value after a failed submission.</strong> It is not the new saved value, and calling <code>old()</code> does not update the database.</p>
+<p>After validation, the update fragment is <code>$model-&gt;update($id, ['title' =&gt; $this-&gt;request-&gt;getPost('title')]);</code>. Delete uses <code>$model-&gt;delete($id)</code>. The route supplies the ID; it should not accidentally update every task or a hard-coded unrelated record.</p>
+<aside class="notes-important"><strong>Method matters</strong><p><mark>A normal link makes a GET request; do not use GET for destructive record actions.</mark> M3 demonstrates POST-based changes. Pair the route’s method with the form, include CSRF protection, and validate/authorize the selected action. Hiding a Delete link is not access control.</p></aside>
+<h3 id="section-3-4">3.4 File uploads are not ordinary text fields</h3>
+<p class="page-range"><a href="modules/IT0049%20-%20M3%20-%20Forms%2C%20Validation%2C%20File%20Upload%2C%20and%20CRUD.pdf#page=24" target="_blank" rel="noopener">PDF pages 24–28 · Multipart form and file validation ↗</a></p>
+<pre tabindex="0"><code class="language-php">&lt;form method=&quot;post&quot;
+      action=&quot;&lt;?= site_url('tasks/' . $task['id'] . '/upload') ?&gt;&quot;
+      enctype=&quot;multipart/form-data&quot;&gt;
+    &lt;?= csrf_field() ?&gt;
+    &lt;input type=&quot;file&quot; name=&quot;attachment&quot;&gt;
+    &lt;button type=&quot;submit&quot;&gt;Upload&lt;/button&gt;
+&lt;/form&gt;
+</code></pre>
+<p><code>enctype=&quot;multipart/form-data&quot;</code> lets the browser send file content. Without it, adding a file input is not enough. The field name must match the controller lookup <strong>and the name inside each file rule</strong>:</p>
+<pre tabindex="0"><code class="language-php">$rules = [
+    'attachment' =&gt; [
+        'rules' =&gt; [
+            'uploaded[attachment]',
+            'max_size[attachment,2048]',
+            'mime_in[attachment,image/jpeg,image/png]',
+        ],
+    ],
+];
+
+if (! $this-&gt;validateData([], $rules)) {
+    return redirect()-&gt;back()-&gt;withInput();
+}
+$file = $this-&gt;request-&gt;getFile('attachment');
+$newName = $file-&gt;getRandomName();
+</code></pre>
+<p><code>uploaded</code> checks for the upload; it is not interchangeable with the text-field <code>required</code> shortcut. <code>max_size</code> limits the file to 2048 KB in this example. <code>mime_in</code> restricts the accepted MIME types. These checks occur <strong>before</strong> moving and saving the file. A file input generally must be chosen again after a failed submission; old text input does not restore the browser’s local file selection.</p>
+<h3 id="section-3-5">3.5 Move, prepare, persist, and display the attachment</h3>
+<p class="page-range"><a href="modules/IT0049%20-%20M3%20-%20Forms%2C%20Validation%2C%20File%20Upload%2C%20and%20CRUD.pdf#page=29" target="_blank" rel="noopener">PDF pages 29–36 · File location, image preparation, filename persistence, and recap ↗</a></p>
+<p>The module’s public-image workflow puts validated files in <code>public/uploads</code>. <code>FCPATH</code> refers to the directory containing the front controller, normally <code>public/</code> in this project layout. A server filesystem path and a browser URL are different things.</p>
+<pre tabindex="0"><code class="language-php">$uploadPath = FCPATH . 'uploads';
+if (! is_dir($uploadPath)) {
+    mkdir($uploadPath, 0775, true);
+}
+$file-&gt;move($uploadPath, $newName);
+
+// Optional image preparation, as shown in the module:
+service('image')
+    -&gt;withFile(FCPATH . 'uploads/' . $newName)
+    -&gt;fit(300, 300, 'center')
+    -&gt;save(FCPATH . 'uploads/' . $newName);
+
+$model = new TaskModel();
+$model-&gt;update($id, ['attachment' =&gt; $newName]);
+return redirect()-&gt;to('/tasks/' . $id);
+</code></pre>
+<p><code>getRandomName()</code> avoids trusting a user-provided filename. <code>move()</code> places the uploaded bytes in the intended directory. <code>fit(300, 300, 'center')</code> prepares a square display image by fitting/cropping, rather than assuming every input already has that size. Image processing requires the appropriate image service/driver. Directory permissions and error handling depend on the environment.</p>
+<aside class="notes-important"><strong>Prerequisite the short upload example assumes</strong><p><mark>Add the <code>attachment</code> column to the table and <code>attachment</code> to <code>TaskModel::$allowedFields</code>.</mark> Calling <code>update()</code> does not create the column or automatically allow that field. The record must already exist for this update-based example.</p></aside>
+<pre tabindex="0"><code class="language-php">&lt;?php $url = base_url('uploads/' . $task['attachment']); ?&gt;
+&lt;img src=&quot;&lt;?= esc($url, 'attr') ?&gt;&quot; alt=&quot;Task attachment&quot;&gt;
+</code></pre>
+<p>The database stores the generated <strong>filename</strong>, not the file’s bytes or an absolute machine-specific path. <code>base_url()</code> builds the public URL. <code>esc($url, 'attr')</code> escapes that value for the HTML attribute context. Storing a file under <code>writable/</code> does not make a <code>base_url('uploads/...')</code> address magically serve it; storage location and public URL must correspond.</p>
+<figure><a href="slides/m3/034.webp" target="_blank" rel="noopener" aria-label="Open original figure at full size"><img src="slides/m3/034.webp" width="1600" height="900" loading="lazy" alt="Original Module 3 page 34 safe upload checklist covering multipart forms, file rules, random names, storage, image preparation, and safe display."></a><figcaption>Figure 5. Original upload checklist, M3 p. 34. Read it as a complete workflow; the shorter code fragments omit earlier setup and validation.</figcaption></figure>
+<p><strong>M3 recap:</strong> correct form method and destination → token → matching field names → server validation → model operation → redirect. For files, also add multipart encoding, file-specific rules, generated names, deliberate storage, optional image preparation, and filename persistence. The opening learning outcomes and final Q&amp;A cover these same three areas: forms, CRUD, and uploads.</p>
+<a class="back-contents" href="#contents">↑ Back to contents</a></article><article class="notes-chapter" id="module-4" aria-labelledby="module-title-4"><header class="chapter-heading"><span class="chapter-number">MODULE 04</span><h2 id="module-title-4">CI authentication &amp; sessions</h2><p>36 source pages · CodeIgniter · <a href="modules/IT0049%20-%20M4%20-%20CodeIgniter%20Authentication%20and%20Sessions.pdf" target="_blank" rel="noopener">Original PDF ↗</a></p></header><nav class="chapter-outline" aria-label="Module 4 sections"><a href="#section-4-1">4.1 Sessions give separate requests continuity</a><a href="#section-4-2">4.2 Flash data is for the next request</a><a href="#section-4-3">4.3 Password storage and authentication</a><a href="#section-4-4">4.4 Trace the login controller from input to session</a><a href="#section-4-5">4.5 Filters centralize protected-route checks</a><a href="#section-4-6">4.6 Logout and the access-control check</a></nav><h3 id="section-4-1">4.1 Sessions give separate requests continuity</h3>
+<p class="page-range"><a href="modules/IT0049%20-%20M4%20-%20CodeIgniter%20Authentication%20and%20Sessions.pdf#page=1" target="_blank" rel="noopener">PDF pages 1–9 · Objectives, session data, and removal ↗</a></p>
+<p>HTTP requests are separate exchanges. A <strong>session</strong> lets the server associate small pieces of state with the same visitor across requests. The browser commonly sends a session cookie identifying the relevant server-side session data. The cookie is not a reason to store the user’s password in session data.</p>
+<pre tabindex="0"><code class="language-php">session()-&gt;set('username', 'admin');
+$name = session()-&gt;get('username');
+$sameName = session('username');
+
+session()-&gt;remove('username'); // One key
+session()-&gt;destroy();          // End the whole session
+</code></pre>
+<p>Use the CodeIgniter session service/helper; the course does not manually call PHP’s <code>session_start()</code>. <code>set()</code> remembers a value, <code>get()</code> reads it, and <code>remove()</code> removes a particular key. Destroying the session ends the whole login state rather than removing one value and accidentally leaving others behind.</p>
+<div class="notes-table" tabindex="0" role="region" aria-label="Reference table 8"><table>
+<thead>
+<tr>
+<th>Appropriate small values</th>
+<th>Values the module says to avoid</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>User ID, username, login-state flag</td>
+<td>Plaintext password or stored password hash as a login credential</td>
+</tr>
+<tr>
+<td>A short redirect message</td>
+<td>Whole user tables or large record collections</td>
+</tr>
+</tbody>
+</table></div>
+<p><mark>A session remembers state, not permission by itself.</mark> Application code must check the relevant state before allowing a protected action. Session lifetime also depends on configuration and expiration; “lasts the visit” is a teaching shorthand, not a guaranteed duration for every setup.</p>
+<h3 id="section-4-2">4.2 Flash data is for the next request</h3>
+<p class="page-range"><a href="modules/IT0049%20-%20M4%20-%20CodeIgniter%20Authentication%20and%20Sessions.pdf#page=10" target="_blank" rel="noopener">PDF pages 10–15 · Redirect messages and session habits ↗</a></p>
+<p><strong>Flash data</strong> is session data intended to survive into the next request and then expire. It fits the save–redirect–display pattern because the message is set before the redirect and shown on the destination page.</p>
+<pre tabindex="0"><code class="language-php">// After a successful task insert:
+session()-&gt;setFlashdata('message', 'Task added successfully!');
+return redirect()-&gt;to('/tasks');
+</code></pre>
+<pre tabindex="0"><code class="language-php">&lt;!-- In the destination view --&gt;
+&lt;?php if ($message = session()-&gt;getFlashdata('message')): ?&gt;
+    &lt;p class=&quot;success&quot;&gt;&lt;?= esc($message) ?&gt;&lt;/p&gt;
+&lt;?php endif; ?&gt;
+</code></pre>
+<p>The key <code>message</code> must match on both sides. Set the message <strong>before returning</strong> the redirect; code after a return is not reached. The <code>esc()</code> call makes output handling explicit in this rewritten view.</p>
+<aside class="notes-clarify"><strong>Not “deleted because it was read”</strong><p>The next-request lifecycle is the important rule. Reading flash data is not the same as immediately deleting it on that read. The <a href="https://codeigniter4.github.io/userguide/libraries/sessions.html#flashdata" target="_blank" rel="noopener">CodeIgniter session documentation</a> describes its request-based availability.</p></aside>
+<p><strong>Example:</strong> POST creates a task and sets <code>message</code>; GET <code>/tasks</code> after the redirect displays it. A later ordinary refresh should not keep reporting that a new task was just created. A persistent <code>set()</code> value would be the wrong tool for a message meant to disappear.</p>
+<h3 id="section-4-3">4.3 Password storage and authentication</h3>
+<p class="page-range"><a href="modules/IT0049%20-%20M4%20-%20CodeIgniter%20Authentication%20and%20Sessions.pdf#page=16" target="_blank" rel="noopener">PDF pages 16–20 · User records, hashing, and demo setup ↗</a></p>
+<p><strong>Authentication</strong> checks who the visitor is. The course’s minimal login looks up a user by username and verifies the typed password against a stored password hash. A <strong>users</strong> table therefore needs an ID, a unique username, and a password-hash column, illustrated as <code>VARCHAR(255)</code>.</p>
+<pre tabindex="0"><code class="language-php">$hash = password_hash($plainPassword, PASSWORD_DEFAULT);
+// Persist $hash in users.password, never $plainPassword.
+</code></pre>
+<p><code>password_hash()</code> creates a password hash suitable for storage. <code>PASSWORD_DEFAULT</code> selects PHP’s default password-hashing algorithm. It is not encryption that the application later decrypts. Verification checks a candidate password against that hash.</p>
+<pre tabindex="0"><code class="language-php">// app/Models/UserModel.php
+&lt;?php
+namespace App\Models;
+use CodeIgniter\Model;
+
+class UserModel extends Model
+{
+    protected $table = 'users';
+    protected $allowedFields = ['username', 'password'];
+}
+</code></pre>
+<p>The slides create one hashed test account so the login query has a real row to find. The displayed demo credentials are classroom examples, not values to reuse in a real deployment. A model definition alone does not create the table or the account.</p>
+<aside class="notes-important"><strong>Hash and verify are a pair</strong><p><mark>Store with <code>password_hash()</code>; check with <code>password_verify()</code>.</mark> Do not compare the typed password directly with the stored hash using <code>==</code> or <code>===</code>, and do not re-hash the typed value and compare hash strings.</p></aside>
+<h3 id="section-4-4">4.4 Trace the login controller from input to session</h3>
+<p class="page-range"><a href="modules/IT0049%20-%20M4%20-%20CodeIgniter%20Authentication%20and%20Sessions.pdf#page=21" target="_blank" rel="noopener">PDF pages 21–25 and 32 · Form, lookup, verification, and success ↗</a></p>
+<p>The login form submits <code>username</code> and <code>password</code> to the login POST route, includes <code>csrf_field()</code>, and uses a password input to obscure the on-screen characters. An HTML password field does not hash the stored password or replace secure transport.</p>
+<p>The controller needs to read <strong>both</strong> submitted variables before using the verification fragment. This combined teaching example supplies the password assignment that is implicit in the slides:</p>
+<pre tabindex="0"><code class="language-php">// In the Auth controller; import App\Models\UserModel.
+$username = $this-&gt;request-&gt;getPost('username');
+$password = $this-&gt;request-&gt;getPost('password');
+
+// Validate required field types/presence before this lookup.
+$model = new UserModel();
+$user = $model-&gt;where('username', $username)-&gt;first();
+
+if (! $user || ! password_verify($password, $user['password'])) {
+    session()-&gt;setFlashdata('error', 'Invalid login.');
+    return redirect()-&gt;back()-&gt;withInput();
+}
+
+// Explicit safety addition after establishing a new login:
+session()-&gt;regenerate(true);
+session()-&gt;set([
+    'isLoggedIn' =&gt; true,
+    'user_id' =&gt; $user['id'],
+    'username' =&gt; $user['username'],
+]);
+return redirect()-&gt;to('/tasks');
+</code></pre>
+<p>The first condition rejects an absent user before attempting to read their stored hash. The failure message is generic. The success branch remembers only the small values needed for subsequent requests. The session-ID regeneration line is labeled as an addition; it is not printed in the PDF’s short successful-login snippet.</p>
+<p><strong>Read this in order:</strong> validate input → find username → verify password → establish session state → redirect. The protected task page is reached by a <strong>new request</strong>, which is why the login state must persist in the session.</p>
+<h3 id="section-4-5">4.5 Filters centralize protected-route checks</h3>
+<p class="page-range"><a href="modules/IT0049%20-%20M4%20-%20CodeIgniter%20Authentication%20and%20Sessions.pdf#page=27" target="_blank" rel="noopener">PDF pages 27–31 · before(), after(), alias, and route attachment ↗</a></p>
+<p>A <strong>filter</strong> can run before controller logic. The authentication filter checks whether the login flag exists and is true. If the visitor is a guest, it returns a redirect to <code>/login</code> before allowing the task action to run. Repeating this check manually in every action is harder to maintain and easier to forget.</p>
+<pre tabindex="0"><code class="language-php">// app/Filters/AuthFilter.php
+&lt;?php
+namespace App\Filters;
+
+use CodeIgniter\Filters\FilterInterface;
+use CodeIgniter\HTTP\RequestInterface;
+use CodeIgniter\HTTP\ResponseInterface;
+
+class AuthFilter implements FilterInterface
+{
+    public function before(RequestInterface $request, $arguments = null)
+    {
+        if (! session()-&gt;get('isLoggedIn')) {
+            return redirect()-&gt;to('/login');
+        }
+    }
+
+    public function after(RequestInterface $request,
+        ResponseInterface $response, $arguments = null) {}
+}
+</code></pre>
+<p><code>before()</code> is the pre-controller gate. <code>after()</code> is the corresponding post-controller hook; this simple filter does not need to change the response there. Register the alias in <code>app/Config/Filters.php</code> by <strong>adding it to the existing aliases</strong>, rather than accidentally replacing other framework aliases:</p>
+<pre tabindex="0"><code class="language-php">'auth' =&gt; \App\Filters\AuthFilter::class,
+</code></pre>
+<p>Then attach it to a protected route:</p>
+<pre tabindex="0"><code class="language-php">$routes-&gt;get('/tasks', 'Tasks::index', ['filter' =&gt; 'auth']);
+</code></pre>
+<figure class="notes-flow"><ol><li><b>Request</b><span>GET /tasks</span></li><li><b>Auth filter</b><span>Check login state</span></li><li><b>Logged in</b><span>Run controller</span></li><li><b>Guest</b><span>Redirect to login instead</span></li></ol><figcaption>Figure 6. The last two boxes are alternative outcomes, not sequential actions. Based on M4, pp. 27–31.</figcaption></figure>
+<aside class="notes-important"><strong>Protect actions, not just page links</strong><p><mark>Every route requiring login needs the check, including write routes.</mark> Hiding an Edit or Delete control does not prevent a direct HTTP request. Authentication answers “logged in?”; role and record-ownership permissions need additional checks.</p></aside>
+<h3 id="section-4-6">4.6 Logout and the access-control check</h3>
+<p class="page-range"><a href="modules/IT0049%20-%20M4%20-%20CodeIgniter%20Authentication%20and%20Sessions.pdf#page=26" target="_blank" rel="noopener">PDF page 26 and pages 33–36 · Logout, manual check, and recap ↗</a></p>
+<pre tabindex="0"><code class="language-php">public function logout()
+{
+    session()-&gt;destroy();
+    return redirect()-&gt;to('/login');
+}
+</code></pre>
+<p>The slide registers GET <code>/logout</code> for its classroom demonstration. Distinguish that printed example from a hardened state-changing workflow, which should use an appropriate non-GET route with CSRF protection. The important course session operation is <code>destroy()</code>; removing only <code>username</code> while leaving <code>isLoggedIn</code> would not correctly end the login state.</p>
+<p><strong>Manual check from the module:</strong> log out → request <code>/tasks</code> directly → verify redirection to login → log in → request <code>/tasks</code> again. Repeat relevant checks for write actions instead of assuming protecting the list page protects every endpoint.</p>
+<p><strong>M4 recap:</strong> sessions provide continuity; flash data carries short-lived messages; hashes protect stored passwords; verification establishes identity; filters gate protected routes; logout destroys the login session. The objectives and final recap/Q&amp;A combine these same responsibilities rather than introducing another authentication API.</p>
+<a class="back-contents" href="#contents">↑ Back to contents</a></article><article class="notes-chapter" id="module-5" aria-labelledby="module-title-5"><header class="chapter-heading"><span class="chapter-number">MODULE 05</span><h2 id="module-title-5">Laravel foundations</h2><p>34 source pages · Laravel · <a href="modules/IT0049%20-%20M5%20-%20Laravel%20Foundations.pdf" target="_blank" rel="noopener">Original PDF ↗</a></p></header><nav class="chapter-outline" aria-label="Module 5 sections"><a href="#section-5-1">5.1 Transfer the MVC idea, then learn the new file map</a><a href="#section-5-2">5.2 Environment settings, servers, and Artisan</a><a href="#section-5-3">5.3 Three ways a route can produce a page</a><a href="#section-5-4">5.4 Controller classes and route connections</a><a href="#section-5-5">5.5 Blade templates, escaping, and details pages</a></nav><h3 id="section-5-1">5.1 Transfer the MVC idea, then learn the new file map</h3>
+<p class="page-range"><a href="modules/IT0049%20-%20M5%20-%20Laravel%20Foundations.pdf#page=1" target="_blank" rel="noopener">PDF pages 1–9 · Objectives, installation, conventions, and structure ↗</a></p>
+<p>Laravel is another server-side PHP framework. The concept does not restart from zero: a route receives a request, a controller coordinates work, a model handles data, and a view presents the result. What changes is the framework’s conventions, syntax, and tooling. The module emphasizes looking for the <strong>same responsibility in a different location</strong>.</p>
+<pre tabindex="0"><code class="language-sh">composer global require laravel/installer
+laravel new myproject
+cd myproject
+</code></pre>
+<p>Composer installs the Laravel installer as a global command-line tool. <code>laravel new</code> creates the project. The installer’s prompts and exact defaults can depend on the installed version, so these notes preserve the classroom workflow without claiming that every current installation looks identical.</p>
+<div class="notes-table" tabindex="0" role="region" aria-label="Reference table 9"><table>
+<thead>
+<tr>
+<th>Responsibility</th>
+<th>CodeIgniter</th>
+<th>Laravel</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Web routes</td>
+<td><code>app/Config/Routes.php</code></td>
+<td><code>routes/web.php</code></td>
+</tr>
+<tr>
+<td>Controllers</td>
+<td><code>app/Controllers</code></td>
+<td><code>app/Http/Controllers</code></td>
+</tr>
+<tr>
+<td>Models</td>
+<td><code>app/Models</code></td>
+<td><code>app/Models</code></td>
+</tr>
+<tr>
+<td>Templates</td>
+<td><code>app/Views</code></td>
+<td><code>resources/views</code></td>
+</tr>
+<tr>
+<td>Template form</td>
+<td>PHP view, e.g. <code>about.php</code></td>
+<td>Blade view, e.g. <code>about.blade.php</code></td>
+</tr>
+<tr>
+<td>Command-line tool</td>
+<td>Spark</td>
+<td>Artisan</td>
+</tr>
+<tr>
+<td>Public entry directory</td>
+<td><code>public/</code></td>
+<td><code>public/</code></td>
+</tr>
+<tr>
+<td>Writable application data</td>
+<td><code>writable/</code> in the CI layout</td>
+<td><code>storage/</code> in the Laravel layout</td>
+</tr>
+</tbody>
+</table></div>
+<p>Other Laravel folders in the PDF include <code>bootstrap/</code>, <code>config/</code>, <code>database/</code>, and <code>vendor/</code>. <code>database/</code> contains schema and sample-data code developed in M6. <code>vendor/</code> contains Composer dependencies. Do not edit dependency files as a substitute for editing your application.</p>
+<figure><a href="slides/m5/020.webp" target="_blank" rel="noopener" aria-label="Open original figure at full size"><img src="slides/m5/020.webp" width="1600" height="900" loading="lazy" alt="Original Module 5 page 20 comparison of CodeIgniter and Laravel routes, controllers, and view locations."></a><figcaption>Figure 7. Original framework-to-framework MVC map, M5 p. 20. The responsibilities transfer even though the paths and controller names change.</figcaption></figure>
+<h3 id="section-5-2">5.2 Environment settings, servers, and Artisan</h3>
+<p class="page-range"><a href="modules/IT0049%20-%20M5%20-%20Laravel%20Foundations.pdf#page=10" target="_blank" rel="noopener">PDF pages 10–15 and 26 · Local settings, commands, and setup errors ↗</a></p>
+<pre tabindex="0"><code class="language-ini">APP_NAME=&quot;Student Portal&quot;
+APP_ENV=local
+APP_DEBUG=true
+APP_URL=http://localhost:8000
+DB_CONNECTION=sqlite
+</code></pre>
+<p><code>.env</code> contains values that differ between environments. Configuration files under <code>config/</code> read environment values and expose application settings. <code>APP_URL</code> describes the application address; it does not start a server. <code>APP_DEBUG=true</code> is shown for local development, not as a setting to expose internal debug details publicly.</p>
+<pre tabindex="0"><code class="language-sh">php artisan serve
+php artisan list
+php artisan route:list
+php artisan make:controller PageController
+</code></pre>
+<p><code>serve</code> starts the simple local server, normally at port 8000. <code>list</code> shows available Artisan commands. <code>route:list</code> inspects registered routes. <code>make:controller</code> generates a controller in Laravel’s expected location. The PDF also mentions <code>composer run dev</code> for a project’s fuller development workflow; the tools it starts depend on that project’s script and frontend setup.</p>
+<p><strong>Troubleshooting:</strong> “laravel not recognized” points toward the installer/Composer global bin PATH; “composer not recognized” points toward Composer installation or terminal PATH. A port-in-use error means another process is using that port. An error page should be read for the failing class, file, line, or configuration rather than dismissed as simply “Laravel not working.”</p>
+<aside class="notes-important"><strong>Keep the command families separate</strong><p><mark><code>php spark ...</code> belongs to CodeIgniter. <code>php artisan ...</code> belongs to Laravel.</mark> Run project commands from the correct project directory.</p></aside>
+<h3 id="section-5-3">5.3 Three ways a route can produce a page</h3>
+<p class="page-range"><a href="modules/IT0049%20-%20M5%20-%20Laravel%20Foundations.pdf#page=16" target="_blank" rel="noopener">PDF pages 16–23 · Direct responses, Route::view, and parameters ↗</a></p>
+<p>Laravel’s web routes belong in <code>routes/web.php</code>. Import the <code>Route</code> facade when writing the shown examples.</p>
+<pre tabindex="0"><code class="language-php">use Illuminate\Support\Facades\Route;
+
+// 1. Direct response from a closure:
+Route::get('/about', function () {
+    return 'This is the about page.';
+});
+
+// 2. A view-only route instead of the closure above:
+// Route::view('/about', 'about');
+
+// 3. A view route with small data:
+// Route::view('/about', 'about', ['course' =&gt; 'IT0049']);
+</code></pre>
+<p>These are <strong>alternatives</strong> for explaining a route, not three duplicate <code>/about</code> registrations you should paste together. <code>Route::get</code> responds to GET. A closure can return a simple response directly. <code>Route::view</code> is convenient when a page needs a view and perhaps simple data, but not a separate controller action yet.</p>
+<pre tabindex="0"><code class="language-php">Route::get('/tasks/{id}', function ($id) {
+    return 'Task ID: ' . $id;
+});
+</code></pre>
+<p>Visiting <code>/tasks/15</code> supplies <code>15</code> as the route parameter. <code>{id}</code> is a captured path value, not query-string syntax and not a database lookup by itself. The route shown here has no numeric constraint. Laravel’s braces and parameter style should not be confused with CodeIgniter’s <code>(:num)</code> and <code>$1</code> handler syntax.</p>
+<h3 id="section-5-4">5.4 Controller classes and route connections</h3>
+<p class="page-range"><a href="modules/IT0049%20-%20M5%20-%20Laravel%20Foundations.pdf#page=24" target="_blank" rel="noopener">PDF pages 24–28 · Generation, namespace, handler, and data ↗</a></p>
+<p>After <code>php artisan make:controller PageController</code>, the controller belongs in <code>app/Http/Controllers/PageController.php</code>:</p>
+<pre tabindex="0"><code class="language-php">&lt;?php
+namespace App\Http\Controllers;
+
+class PageController extends Controller
+{
+    public function about()
+    {
+        return view('about', [
+            'course' =&gt; 'Web System Technologies',
+            'module' =&gt; 'Laravel Foundations',
+        ]);
+    }
+}
+</code></pre>
+<p>Connect that method with a route:</p>
+<pre tabindex="0"><code class="language-php">use App\Http\Controllers\PageController;
+Route::get('/about', [PageController::class, 'about']);
+</code></pre>
+<p>The route’s handler array names the controller class and method. Importing the class avoids Laravel looking for the wrong class name. The <code>view()</code> helper renders a template; its second argument is an associative array. Keys <code>course</code> and <code>module</code> become <code>$course</code> and <code>$module</code> in Blade.</p>
+<p><mark>A controller prepares the response; it should not turn into the HTML template.</mark> The syntax changes from CodeIgniter, but this controller-to-view responsibility is familiar.</p>
+<h3 id="section-5-5">5.5 Blade templates, escaping, and details pages</h3>
+<p class="page-range"><a href="modules/IT0049%20-%20M5%20-%20Laravel%20Foundations.pdf#page=29" target="_blank" rel="noopener">PDF pages 29–34 · Page composition, parameters, output, and recap ↗</a></p>
+<pre tabindex="0"><code class="language-html">&lt;!-- resources/views/about.blade.php --&gt;
+&lt;!DOCTYPE html&gt;
+&lt;html lang=&quot;en&quot;&gt;
+&lt;head&gt;&lt;title&gt;About&lt;/title&gt;&lt;/head&gt;
+&lt;body&gt;
+    &lt;h1&gt;{{ $course }}&lt;/h1&gt;
+    &lt;p&gt;{{ $module }}&lt;/p&gt;
+&lt;/body&gt;
+&lt;/html&gt;
+</code></pre>
+<p>Blade is Laravel’s template system. The <code>.blade.php</code> extension matters: putting the file in a controller folder or naming it <code>about.php</code> does not match the course’s Blade convention. <code>view('about')</code> resolves the view name under <code>resources/views</code> without writing the full filename in the controller.</p>
+<aside class="notes-important"><strong>Normal output: double curly braces</strong><p><mark><code>{{ $value }}</code> escapes HTML output.</mark> <code>{!! $value !!}</code> is raw output and should not be used merely to display user-entered text. The raw-output line in the slide is an example of what to avoid for untrusted input.</p></aside>
+<p>For a details demonstration, the route captures <code>{id}</code>, the controller builds an array, and the view prints it:</p>
+<pre tabindex="0"><code class="language-php">// In routes/web.php:
+Route::get('/tasks/{id}', [PageController::class, 'task']);
+
+// Inside PageController:
+public function task($id)
+{
+    return view('task', ['id' =&gt; $id, 'title' =&gt; 'Buy groceries']);
+}
+</code></pre>
+<pre tabindex="0"><code class="language-html">&lt;!-- resources/views/task.blade.php --&gt;
+&lt;h1&gt;{{ $title }}&lt;/h1&gt;
+&lt;p&gt;Task ID: {{ $id }}&lt;/p&gt;
+</code></pre>
+<p>Here the title is still fixed teaching data. The captured ID is displayed, but no task has been fetched from a database. M6 turns that visual example into a real data-backed details page.</p>
+<p><strong>M5 recap:</strong> route → optional controller → view data → Blade → HTML response. Check file locations, imports, controller spelling, and the Blade filename if that chain breaks. The opening objectives and closing Q&amp;A address setup, Artisan, routing, controllers, and templates; all are represented above.</p>
+<a class="back-contents" href="#contents">↑ Back to contents</a></article><article class="notes-chapter" id="module-6" aria-labelledby="module-title-6"><header class="chapter-heading"><span class="chapter-number">MODULE 06</span><h2 id="module-title-6">Laravel data layer</h2><p>34 source pages · Laravel · <a href="modules/IT0049%20-%20M6%20-%20Laravel%20Data%20Layer.pdf" target="_blank" rel="noopener">Original PDF ↗</a></p></header><nav class="chapter-outline" aria-label="Module 6 sections"><a href="#section-6-1">6.1 Six pieces of the Laravel data layer</a><a href="#section-6-2">6.2 Migrations describe schema changes</a><a href="#section-6-3">6.3 Seeders create repeatable sample records</a><a href="#section-6-4">6.4 Eloquent models and mass assignment</a><a href="#section-6-5">6.5 Reading many records and explaining the result</a><a href="#section-6-6">6.6 One record, 404s, and debugging the data</a></nav><h3 id="section-6-1">6.1 Six pieces of the Laravel data layer</h3>
+<p class="page-range"><a href="modules/IT0049%20-%20M6%20-%20Laravel%20Data%20Layer.pdf#page=1" target="_blank" rel="noopener">PDF pages 1–8 · Objectives, database choice, and file responsibilities ↗</a></p>
+<p>Laravel separates connection settings, table structure, sample rows, record access, request handling, and display. Keeping those jobs distinct makes database problems much easier to locate.</p>
+<div class="notes-table" tabindex="0" role="region" aria-label="Reference table 10"><table>
+<thead>
+<tr>
+<th>Job</th>
+<th>Where the course puts it</th>
+<th>What it does not do</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Connection settings</td>
+<td><code>.env</code></td>
+<td>Does not create task columns</td>
+</tr>
+<tr>
+<td>Schema</td>
+<td><code>database/migrations</code></td>
+<td>Does not automatically add demonstration tasks</td>
+</tr>
+<tr>
+<td>Sample records</td>
+<td><code>database/seeders</code></td>
+<td>Does not replace the table schema</td>
+</tr>
+<tr>
+<td>Record access</td>
+<td><code>app/Models/Task.php</code></td>
+<td>Does not decide page layout</td>
+</tr>
+<tr>
+<td>Request coordination</td>
+<td><code>app/Http/Controllers</code></td>
+<td>Does not belong inside Blade</td>
+</tr>
+<tr>
+<td>Presentation</td>
+<td><code>resources/views</code></td>
+<td>Should not fetch its own database records</td>
+</tr>
+</tbody>
+</table></div>
+<p>The module starts with SQLite, which stores the local database in one file, and notes that MySQL can be used by changing connection settings. For SQLite, the driver is <code>DB_CONNECTION=sqlite</code>; where an explicit database path is configured, it must point to the actual file. MySQL instead needs the corresponding host, database name, and credentials.</p>
+<p>The printed <code>type nul &gt; database\database.sqlite</code> is a <strong>Windows Command Prompt</strong> file-creation example, not a Laravel API or a command that works identically in every shell. The conceptual steps are to ensure the configured SQLite file exists and then run migrations. Do not accidentally truncate an existing database while following a setup example.</p>
+<h3 id="section-6-2">6.2 Migrations describe schema changes</h3>
+<p class="page-range"><a href="modules/IT0049%20-%20M6%20-%20Laravel%20Data%20Layer.pdf#page=9" target="_blank" rel="noopener">PDF pages 9–12 · Columns, migration execution, and rollback ↗</a></p>
+<p>A <strong>migration</strong> versions a database structure change as code. Laravel records which migrations have run. This helps different project copies create the same tables instead of manually clicking an undocumented schema into existence.</p>
+<pre tabindex="0"><code class="language-sh">php artisan make:migration create_tasks_table
+php artisan migrate
+</code></pre>
+<p>The first command is the explicit generation command for the migration step described in the PDF; define the schema before running <code>migrate</code>.</p>
+<pre tabindex="0"><code class="language-php">// Inside the migration's up() method:
+Schema::create('tasks', function (Blueprint $table) {
+    $table-&gt;id();
+    $table-&gt;string('title', 150);
+    $table-&gt;string('status', 20)-&gt;default('pending');
+    $table-&gt;timestamps();
+});
+</code></pre>
+<p><code>id()</code> creates the conventional ID column. <code>string('title', 150)</code> gives the column its length. <code>default('pending')</code> supplies a default status. <code>timestamps()</code> adds <strong>both <code>created_at</code> and <code>updated_at</code></strong>, matching Eloquent’s usual timestamp behavior. Other illustrated column choices include nullable text for notes and a boolean <code>is_active</code> with a false default.</p>
+<div class="notes-table" tabindex="0" role="region" aria-label="Reference table 11"><table>
+<thead>
+<tr>
+<th>Command</th>
+<th>Effect to recognize</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>php artisan migrate</code></td>
+<td>Run pending migrations</td>
+</tr>
+<tr>
+<td><code>php artisan migrate:rollback</code></td>
+<td>Roll back the latest migration batch</td>
+</tr>
+<tr>
+<td><code>php artisan migrate:fresh</code></td>
+<td>Drop tables and rebuild using migrations</td>
+</tr>
+</tbody>
+</table></div>
+<aside class="notes-important"><strong>These commands are not synonyms</strong><p><mark><code>migrate:fresh</code> destroys existing tables/data.</mark> The module reserves destructive reset commands for disposable local development. A rollback also depends on the migration’s reverse operation; it is not simply “undo my last typed SQL.”</p></aside>
+<figure><a href="slides/m6/010.webp" target="_blank" rel="noopener" aria-label="Open original figure at full size"><img src="slides/m6/010.webp" width="1600" height="900" loading="lazy" alt="Original Module 6 page 10 tasks-table migration showing id, title, status default, and timestamps."></a><figcaption>Figure 8. Original tasks schema, M6 p. 10. Compare the 150-character database capacity with the stricter 100-character validation examples introduced in M7.</figcaption></figure>
+<h3 id="section-6-3">6.3 Seeders create repeatable sample records</h3>
+<p class="page-range"><a href="modules/IT0049%20-%20M6%20-%20Laravel%20Data%20Layer.pdf#page=13" target="_blank" rel="noopener">PDF pages 13–15 · Seeder generation and inserts ↗</a></p>
+<p>A <strong>seeder</strong> inserts predictable data. A migration makes a table available; a seeder gives the list view records to display.</p>
+<pre tabindex="0"><code class="language-sh">php artisan make:seeder TaskSeeder
+php artisan db:seed --class=TaskSeeder
+</code></pre>
+<pre tabindex="0"><code class="language-php">// In TaskSeeder::run(); import App\Models\Task.
+Task::create(['title' =&gt; 'Buy groceries', 'status' =&gt; 'pending']);
+Task::create(['title' =&gt; 'Submit report', 'status' =&gt; 'pending']);
+Task::create(['title' =&gt; 'Fix login bug', 'status' =&gt; 'done']);
+</code></pre>
+<p>This completes the three sample rows used by the later list screens; the PDF’s p. 14 code is visually cut off near the third insertion. The <code>Task</code> model, table, and allowed mass-assignment fields must exist before this example runs. Re-running a simple insert-only seeder can create duplicates; a seeder is not automatically a synchronization script.</p>
+<h3 id="section-6-4">6.4 Eloquent models and mass assignment</h3>
+<p class="page-range"><a href="modules/IT0049%20-%20M6%20-%20Laravel%20Data%20Layer.pdf#page=16" target="_blank" rel="noopener">PDF pages 16–20 · ORM, Task model, and fillable fields ↗</a></p>
+<p><strong>Eloquent</strong> is Laravel’s object-relational mapper. A model class represents the application’s interaction with a table; a model instance represents one record. A set of results is commonly returned as a collection of model instances.</p>
+<pre tabindex="0"><code class="language-sh">php artisan make:model Task
+</code></pre>
+<pre tabindex="0"><code class="language-php">// app/Models/Task.php
+&lt;?php
+namespace App\Models;
+use Illuminate\Database\Eloquent\Model;
+
+class Task extends Model
+{
+    protected $fillable = ['title', 'status'];
+}
+</code></pre>
+<p>Under the convention used here, <code>Task</code> maps to <code>tasks</code>, its primary key is <code>id</code>, and timestamps use the conventional columns. These conventions explain why the Laravel example needs fewer explicit table properties than <code>TaskModel</code> in CodeIgniter.</p>
+<p><code>$fillable</code> identifies attributes allowed through mass-assignment operations such as <code>create([...])</code> and <code>update([...])</code>. It is comparable in purpose to CodeIgniter’s <code>$allowedFields</code> for the course’s writes. <mark>It does not validate input or authorize the person performing the write.</mark> A column must still exist in the schema, and validation should still return the fields you intend to save.</p>
+<h3 id="section-6-5">6.5 Reading many records and explaining the result</h3>
+<p class="page-range"><a href="modules/IT0049%20-%20M6%20-%20Laravel%20Data%20Layer.pdf#page=21" target="_blank" rel="noopener">PDF pages 21–24 and 26–28 · Collections, queries, view data, and routes ↗</a></p>
+<pre tabindex="0"><code class="language-php">use App\Models\Task;
+
+$tasks = Task::all();
+return view('tasks.index', compact('tasks'));
+</code></pre>
+<p><code>Task::all()</code> retrieves all tasks. <code>compact('tasks')</code> is a PHP helper that builds <code>['tasks' =&gt; $tasks]</code> from an existing local variable; it does not query the database. <code>view('tasks.index')</code> uses Laravel’s dotted view naming and resolves to <code>resources/views/tasks/index.blade.php</code>.</p>
+<p>For a filtered, ordered list:</p>
+<pre tabindex="0"><code class="language-php">$tasks = Task::where('status', 'pending')
+    -&gt;orderBy('created_at', 'desc')
+    -&gt;get();
+</code></pre>
+<p>Read the chain as <strong>condition → order → execute retrieval</strong>. <code>get()</code> retrieves the query’s results. <code>all()</code> is the simple retrieve-everything method, not the terminal method to append after a <code>where()</code> chain in these examples.</p>
+<pre tabindex="0"><code class="language-html">&lt;!-- resources/views/tasks/index.blade.php --&gt;
+&lt;h1&gt;My Tasks&lt;/h1&gt;
+&lt;ul&gt;
+@foreach ($tasks as $task)
+    &lt;li&gt;
+        {{ $task-&gt;title }}
+        @if ($task-&gt;status === 'done')
+            &lt;span&gt;Done&lt;/span&gt;
+        @else
+            &lt;span&gt;Pending&lt;/span&gt;
+        @endif
+    &lt;/li&gt;
+@endforeach
+&lt;/ul&gt;
+</code></pre>
+<p><code>$tasks</code> is the collection; <code>$task</code> is one model object, so attributes use <code>-&gt;title</code> and <code>-&gt;status</code>. Contrast that with the CodeIgniter array example’s <code>$task['title']</code>. Blade’s loop and condition control presentation; they do not move database queries into the template. <code>{{ }}</code> escapes the displayed values.</p>
+<p>Register GET <code>/tasks</code> to <code>TaskController::index</code> and GET <code>/tasks/{id}</code> to <code>TaskController::show</code>, importing the controller in <code>routes/web.php</code> as in M5. The route connects the request to the data-loading action; it does not replace that action.</p>
+<h3 id="section-6-6">6.6 One record, 404s, and debugging the data</h3>
+<p class="page-range"><a href="modules/IT0049%20-%20M6%20-%20Laravel%20Data%20Layer.pdf#page=25" target="_blank" rel="noopener">PDF pages 25 and 29–34 · Details, assembled flow, Tinker, and recap ↗</a></p>
+<pre tabindex="0"><code class="language-php">public function show($id)
+{
+    $task = Task::findOrFail($id);
+    return view('tasks.show', compact('task'));
+}
+</code></pre>
+<pre tabindex="0"><code class="language-html">&lt;!-- resources/views/tasks/show.blade.php --&gt;
+&lt;h1&gt;{{ $task-&gt;title }}&lt;/h1&gt;
+&lt;p&gt;Status: {{ $task-&gt;status }}&lt;/p&gt;
+</code></pre>
+<p><code>findOrFail()</code> retrieves one primary-key match or raises the missing-model exception that Laravel normally turns into a 404 response. That is different from CodeIgniter’s earlier <code>find()</code> example, where the controller explicitly checks for null. Do not blindly access a field on a missing record.</p>
+<p><strong>Tinker</strong> is an interactive Laravel/PHP shell useful for checking whether data exists before debugging the page:</p>
+<pre tabindex="0"><code class="language-text">php artisan tinker
+&gt;&gt;&gt; App\Models\Task::count();
+3
+&gt;&gt;&gt; App\Models\Task::first()-&gt;title;
+&quot;Buy groceries&quot;
+</code></pre>
+<p>The printed results assume the three seeded rows exist. <code>first()-&gt;title</code> also assumes <code>first()</code> found a model; an empty table requires a null check. Tinker is a development inspection tool, not part of the Blade page shown to visitors.</p>
+<p><strong>M6 recap:</strong> configuration connects, migration creates schema, seeder inserts sample records, Eloquent queries models, controller supplies data, and Blade displays it. If the page is empty or fails, inspect connection/path, migration state, seed rows, model import, <code>$fillable</code> for writes, and the data passed to the view. The opening objectives and final recap/Q&amp;A align with these responsibilities.</p>
+<a class="back-contents" href="#contents">↑ Back to contents</a></article><article class="notes-chapter" id="module-7" aria-labelledby="module-title-7"><header class="chapter-heading"><span class="chapter-number">MODULE 07</span><h2 id="module-title-7">Laravel forms &amp; uploads</h2><p>35 source pages · Laravel · <a href="modules/IT0049%20-%20M7%20-%20Laravel%20Forms%2C%20Validation%2C%20and%20File%20Upload.pdf" target="_blank" rel="noopener">Original PDF ↗</a></p></header><nav class="chapter-outline" aria-label="Module 7 sections"><a href="#section-7-1">7.1 Displaying a form and receiving its submission</a><a href="#section-7-2">7.2 Request validation, old input, and errors</a><a href="#section-7-3">7.3 Edit, model binding, and PATCH submission</a><a href="#section-7-4">7.4 Upload form and file validation</a><a href="#section-7-5">7.5 Store a generated path and make it publicly displayable</a><a href="#section-7-6">7.6 Replacement order and image preparation</a><a href="#section-7-7">7.7 Form Request classes and the finished update flow</a></nav><h3 id="section-7-1">7.1 Displaying a form and receiving its submission</h3>
+<p class="page-range"><a href="modules/IT0049%20-%20M7%20-%20Laravel%20Forms%2C%20Validation%2C%20and%20File%20Upload.pdf#page=1" target="_blank" rel="noopener">PDF pages 1–11 · Objectives, named routes, CSRF, form, and Request ↗</a></p>
+<p>Laravel follows the same form lifecycle as the CodeIgniter modules: display a form, receive submitted data, validate it, persist an allowed change, and return a useful response. The API names differ, but the checkpoint before saving remains.</p>
+<pre tabindex="0"><code class="language-php">// routes/web.php; import the controller.
+use App\Http\Controllers\TaskController;
+
+Route::get('/tasks/create', [TaskController::class, 'create'])
+    -&gt;name('tasks.create');
+Route::post('/tasks', [TaskController::class, 'store'])
+    -&gt;name('tasks.store');
+</code></pre>
+<p><code>create</code> displays a form; <code>store</code> receives and saves a new record. These names become especially important in M8’s resource controller. A <strong>route name</strong>, such as <code>tasks.store</code>, is a label used by helpers; it is not the literal URL path and not the view filename.</p>
+<pre tabindex="0"><code class="language-html">&lt;!-- resources/views/tasks/create.blade.php --&gt;
+&lt;form method=&quot;POST&quot; action=&quot;{{ route('tasks.store') }}&quot;&gt;
+    @csrf
+    &lt;label for=&quot;title&quot;&gt;Title&lt;/label&gt;
+    &lt;input id=&quot;title&quot; name=&quot;title&quot; value=&quot;{{ old('title') }}&quot;&gt;
+    @error('title')
+        &lt;p&gt;{{ $message }}&lt;/p&gt;
+    @enderror
+    &lt;button type=&quot;submit&quot;&gt;Save&lt;/button&gt;
+&lt;/form&gt;
+</code></pre>
+<p><code>route('tasks.store')</code> builds a URL from the registered route name. <code>@csrf</code> inserts the token field used by Laravel’s web CSRF protection. The course expects it on POST, PUT, PATCH, and DELETE forms. <code>name=&quot;title&quot;</code> determines the key received by the server. Blade escapes both the restored value and error text with <code>{{ }}</code>.</p>
+<p>The controller imports <code>Illuminate\Http\Request</code> and can receive <code>Request $request</code> as a method parameter. This is request injection: Laravel supplies the current request object. It does not mean the application has already validated the submitted fields.</p>
+<h3 id="section-7-2">7.2 Request validation, old input, and errors</h3>
+<p class="page-range"><a href="modules/IT0049%20-%20M7%20-%20Laravel%20Forms%2C%20Validation%2C%20and%20File%20Upload.pdf#page=12" target="_blank" rel="noopener">PDF pages 12–15 · Validation result and feedback ↗</a></p>
+<pre tabindex="0"><code class="language-php">use Illuminate\Http\Request;
+
+public function store(Request $request)
+{
+    $validated = $request-&gt;validate([
+        'title' =&gt; ['required', 'string', 'max:100'],
+    ]);
+    // Save only the intended validated fields here.
+}
+</code></pre>
+<p>For the module’s ordinary web-form requests, validation failure redirects back with errors and old input. Successful validation returns an array in <code>$validated</code>, which can be passed to the model after the relevant write and access conditions are satisfied. The controller does not need to hand-build the same failure branch shown in the earlier CodeIgniter example. Requests expecting JSON have different error-response handling; the slide describes the browser form case.</p>
+<div class="notes-table" tabindex="0" role="region" aria-label="Reference table 12"><table>
+<thead>
+<tr>
+<th>Item</th>
+<th>Job</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>required</code></td>
+<td>Require the title value</td>
+</tr>
+<tr>
+<td><code>string</code></td>
+<td>Require an appropriate string value</td>
+</tr>
+<tr>
+<td><code>max:100</code></td>
+<td>Limit this string to 100 characters</td>
+</tr>
+<tr>
+<td><code>old('title')</code></td>
+<td>Restore the previous submitted title</td>
+</tr>
+<tr>
+<td><code>@error('title')</code></td>
+<td>Enter a Blade block when that field has a validation error</td>
+</tr>
+<tr>
+<td><code>$message</code></td>
+<td>The error message inside that Blade error block</td>
+</tr>
+</tbody>
+</table></div>
+<aside class="notes-important"><strong>Keep three limits/configurations straight</strong><p><mark>Database column size, validation rules, and <code>$fillable</code> do different jobs.</mark> A 150-character column can intentionally be paired with a stricter 100-character application rule. Neither setting automatically creates the other.</p></aside>
+<p><strong>Example:</strong> submitting a blank title fails validation. The browser returns to the form with a title error. If a long but nonblank title fails instead, <code>old('title')</code> keeps that submitted text visible so the user can shorten it. Errors and old input are user feedback; the invalid row should not already have been saved.</p>
+<h3 id="section-7-3">7.3 Edit, model binding, and PATCH submission</h3>
+<p class="page-range"><a href="modules/IT0049%20-%20M7%20-%20Laravel%20Forms%2C%20Validation%2C%20and%20File%20Upload.pdf#page=16" target="_blank" rel="noopener">PDF pages 16–22 · Update routes, bound records, and forms ↗</a></p>
+<pre tabindex="0"><code class="language-php">Route::get('/tasks/{task}/edit', [TaskController::class, 'edit'])
+    -&gt;name('tasks.edit');
+Route::patch('/tasks/{task}', [TaskController::class, 'update'])
+    -&gt;name('tasks.update');
+Route::post('/tasks/{task}/upload', [TaskController::class, 'upload'])
+    -&gt;name('tasks.upload');
+</code></pre>
+<p>With <code>use App\Models\Task</code>, an action such as <code>edit(Task $task)</code> uses <strong>implicit route model binding</strong> for the matching <code>{task}</code> parameter. Laravel resolves the selected task model instead of making the action manually call <code>findOrFail($id)</code>. An unfound model normally produces a 404. Binding finds the record; it does not alone prove the current user owns it.</p>
+<pre tabindex="0"><code class="language-php">public function edit(Task $task)
+{
+    return view('tasks.edit', ['task' =&gt; $task]);
+}
+
+public function update(Request $request, Task $task)
+{
+    $validated = $request-&gt;validate([
+        'title' =&gt; ['required', 'string', 'max:100'],
+    ]);
+    $task-&gt;update($validated);
+    return redirect()-&gt;route('tasks.index');
+}
+</code></pre>
+<pre tabindex="0"><code class="language-html">&lt;form method=&quot;POST&quot; action=&quot;{{ route('tasks.update', $task) }}&quot;&gt;
+    @csrf
+    @method('PATCH')
+    &lt;input name=&quot;title&quot; value=&quot;{{ old('title', $task-&gt;title) }}&quot;&gt;
+    &lt;button type=&quot;submit&quot;&gt;Update&lt;/button&gt;
+&lt;/form&gt;
+</code></pre>
+<p>HTML forms submit using POST here. <code>@method('PATCH')</code> supplies Laravel’s hidden method override so the request matches the PATCH route. It does not replace <code>@csrf</code>. <code>old('title', $task-&gt;title)</code> prefers the failed submitted input, falling back to the currently saved value when old input is absent.</p>
+<figure><a href="slides/m7/022.webp" target="_blank" rel="noopener" aria-label="Open original figure at full size"><img src="slides/m7/022.webp" width="1600" height="900" loading="lazy" alt="Original Module 7 page 22 Blade edit form with POST, csrf, PATCH method spoofing, and old input fallback."></a><figcaption>Figure 9. Original edit form, M7 p. 22. Four separate pieces matter: the named action, POST transport, PATCH override, and CSRF token.</figcaption></figure>
+<h3 id="section-7-4">7.4 Upload form and file validation</h3>
+<p class="page-range"><a href="modules/IT0049%20-%20M7%20-%20Laravel%20Forms%2C%20Validation%2C%20and%20File%20Upload.pdf#page=23" target="_blank" rel="noopener">PDF pages 23–24 · Multipart request and optional image rules ↗</a></p>
+<pre tabindex="0"><code class="language-html">&lt;form method=&quot;POST&quot; action=&quot;{{ route('tasks.upload', $task) }}&quot;
+      enctype=&quot;multipart/form-data&quot;&gt;
+    @csrf
+    &lt;input type=&quot;file&quot; name=&quot;attachment&quot;&gt;
+    &lt;button type=&quot;submit&quot;&gt;Upload&lt;/button&gt;
+&lt;/form&gt;
+</code></pre>
+<p><code>enctype</code> makes the browser send file bytes. The controller validates the <code>attachment</code> field before storage:</p>
+<pre tabindex="0"><code class="language-php">$request-&gt;validate([
+    'attachment' =&gt; [
+        'nullable', 'image', 'mimes:jpg,jpeg,png', 'max:2048',
+    ],
+]);
+</code></pre>
+<p><code>nullable</code> makes absence/null acceptable in the illustrated optional-upload workflow; it does not mean any nonempty value is acceptable. <code>image</code> checks that the upload is an image. <code>mimes</code> restricts accepted file types. For this <strong>file</strong> rule, <code>max:2048</code> is 2048 KB, approximately 2 MB, not 2048 characters or pixels. Compare this with the earlier string <code>max:100</code>.</p>
+<aside class="notes-important"><strong>Same rule name, different measured quantity</strong><p><mark><code>max:100</code> on a string limits characters; <code>max:2048</code> on a file limits file size in KB.</mark> Read the field’s type and the complete rule set before interpreting a number.</p></aside>
+<h3 id="section-7-5">7.5 Store a generated path and make it publicly displayable</h3>
+<p class="page-range"><a href="modules/IT0049%20-%20M7%20-%20Laravel%20Forms%2C%20Validation%2C%20and%20File%20Upload.pdf#page=25" target="_blank" rel="noopener">PDF pages 25–27 and 32 · Public disk, database field, and URL ↗</a></p>
+<pre tabindex="0"><code class="language-php">if ($request-&gt;hasFile('attachment')) {
+    $path = $request-&gt;file('attachment')
+        -&gt;store('attachments', 'public');
+    $task-&gt;update(['attachment' =&gt; $path]);
+}
+</code></pre>
+<p><code>hasFile()</code> checks whether a file was supplied, which matters when the upload is optional. <code>store('attachments', 'public')</code> stores it in the <code>attachments</code> directory on Laravel’s configured public disk and returns the generated relative path. The database saves that path, for example <code>attachments/generated-name.png</code>, rather than the uploaded file object or its raw bytes.</p>
+<p>The course assumes a configured public disk. With the standard local public-disk arrangement, files live under <code>storage/app/public</code>; the following command exposes them through <code>public/storage</code>:</p>
+<pre tabindex="0"><code class="language-sh">php artisan storage:link
+</code></pre>
+<pre tabindex="0"><code class="language-html">@if ($task-&gt;attachment)
+    &lt;img src=&quot;{{ asset('storage/'.$task-&gt;attachment) }}&quot;
+         alt=&quot;Task attachment&quot; width=&quot;120&quot;&gt;
+@endif
+</code></pre>
+<p>The path returned by <code>store()</code> and the URL prefix must match. <code>asset()</code> builds a URL; it does not create the link or move the file. The database must contain an <code>attachment</code> column and the model must allow writing it. A working file in storage with a failed database update is not a completed upload workflow.</p>
+<h3 id="section-7-6">7.6 Replacement order and image preparation</h3>
+<p class="page-range"><a href="modules/IT0049%20-%20M7%20-%20Laravel%20Forms%2C%20Validation%2C%20and%20File%20Upload.pdf#page=28" target="_blank" rel="noopener">PDF pages 28–29 and 33 · Lifecycle, processing, and cleanup ↗</a></p>
+<p>The module’s checklist says to <strong>delete old files only after replacement succeeds</strong>. Its short p. 28 fragment deletes the old file before storing the new one. Those are not equivalent in a failure case: if storage fails after deletion, the old attachment is gone and no working replacement exists.</p>
+<aside class="notes-clarify"><strong>Use the complete checklist to resolve the short snippet</strong><p>For a replacement, validate first, store/process the new file, save its new path successfully, then remove the old file. If saving the new path fails, clean up the newly stored file and retain the old reference. File storage and a database update are separate operations; a database transaction alone does not undo filesystem changes.</p></aside>
+<p>Conceptually, the sequence is:</p>
+<pre tabindex="0"><code class="language-text">Remember old path
+    → validate and store the replacement
+    → successfully update the task's path
+    → delete the old path from the same disk
+</code></pre>
+<p><code>Storage::disk('public')-&gt;delete($oldPath)</code> deletes a path on that disk; import <code>Illuminate\Support\Facades\Storage</code> before using it. This is an old-path cleanup operation, not the upload itself.</p>
+<p>The slides also show image preparation through <strong>Intervention Image</strong>:</p>
+<pre tabindex="0"><code class="language-php">use Intervention\Image\Laravel\Facades\Image;
+
+$name = uniqid('avatar_') . '.jpg';
+$path = storage_path('app/public/attachments/' . $name);
+Image::read($request-&gt;file('attachment'))
+    -&gt;cover(300, 300)
+    -&gt;save($path);
+</code></pre>
+<p><code>cover(300, 300)</code> prepares a square image by covering/cropping the target area. The sample filename and processing call come from the PDF. Intervention is a separate package that must be installed/configured with a compatible version, and the destination directory must exist. After processing, save the corresponding relative path in the task, not the absolute <code>$path</code> containing the local machine’s directories. Do not trust the original client filename as the storage path.</p>
+<h3 id="section-7-7">7.7 Form Request classes and the finished update flow</h3>
+<p class="page-range"><a href="modules/IT0049%20-%20M7%20-%20Laravel%20Forms%2C%20Validation%2C%20and%20File%20Upload.pdf#page=30" target="_blank" rel="noopener">PDF pages 30–31 and 34–35 · Validation organization and recap ↗</a></p>
+<pre tabindex="0"><code class="language-sh">php artisan make:request UpdateTaskRequest
+</code></pre>
+<pre tabindex="0"><code class="language-php">// In UpdateTaskRequest:
+public function rules(): array
+{
+    return ['title' =&gt; ['required', 'string', 'max:100']];
+}
+</code></pre>
+<p>A <strong>Form Request</strong> moves larger validation rules out of a crowded controller. A rewritten usage example is to inject <code>UpdateTaskRequest $request</code> and use <code>$request-&gt;validated()</code> for the data. Import the generated request class and configure its authorization behavior for the intended action; organizing validation does not remove the need for access checks.</p>
+<p><strong>M7 recap:</strong> GET shows a form; POST/PATCH sends a change; validation checks it; <code>@error</code> explains failure; <code>old()</code> preserves entered text; Eloquent updates the record. Files add multipart encoding, appropriate file rules, generated storage paths, a public-storage link for display, and careful replacement cleanup. The source’s objectives, workflow comparison, recap, and Q&amp;A all reinforce these same steps.</p>
+<a class="back-contents" href="#contents">↑ Back to contents</a></article><article class="notes-chapter" id="module-8" aria-labelledby="module-title-8"><header class="chapter-heading"><span class="chapter-number">MODULE 08</span><h2 id="module-title-8">Laravel CRUD, auth &amp; email</h2><p>35 source pages · Laravel · <a href="modules/IT0049%20-%20M8%20-%20Laravel%20Full%20CRUD%2C%20Auth%2C%20and%20Email%20Notifications.pdf" target="_blank" rel="noopener">Original PDF ↗</a></p></header><nav class="chapter-outline" aria-label="Module 8 sections"><a href="#section-8-1">8.1 A resource controller gives CRUD a standard map</a><a href="#section-8-2">8.2 What each controller method actually does</a><a href="#section-8-3">8.3 Authentication scaffolding and protected routes</a><a href="#section-8-4">8.4 Owning records is separate from being logged in</a><a href="#section-8-5">8.5 Mail settings, mailable classes, and the email view</a><a href="#section-8-6">8.6 Send after success, and trigger on the transition</a></nav><h3 id="section-8-1">8.1 A resource controller gives CRUD a standard map</h3>
+<p class="page-range"><a href="modules/IT0049%20-%20M8%20-%20Laravel%20Full%20CRUD%2C%20Auth%2C%20and%20Email%20Notifications.pdf#page=1" target="_blank" rel="noopener">PDF pages 1–10 · Objectives, generation, resource routes, and method map ↗</a></p>
+<p>Full CRUD is the complete create/read/update/delete workflow for a resource. Laravel’s <strong>resource controller</strong> uses conventional action names so another developer can predict which method shows a form and which method saves it.</p>
+<pre tabindex="0"><code class="language-sh">php artisan make:controller TaskController --resource --model=Task
+php artisan route:list --name=tasks
+</code></pre>
+<p>The generator creates a controller skeleton. The option is typed with two ordinary hyphens: <code>--resource</code>; the slide’s typographic dash should not be pasted as a different terminal character. Register the route before expecting it to appear in <code>route:list</code>:</p>
+<pre tabindex="0"><code class="language-php">use App\Http\Controllers\TaskController;
+Route::resource('tasks', TaskController::class);
+</code></pre>
+<div class="notes-table" tabindex="0" role="region" aria-label="Reference table 13"><table>
+<thead>
+<tr>
+<th>HTTP method</th>
+<th>URL</th>
+<th>Controller action</th>
+<th>Route name</th>
+<th>Purpose</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>GET</td>
+<td><code>/tasks</code></td>
+<td><code>index</code></td>
+<td><code>tasks.index</code></td>
+<td>List records</td>
+</tr>
+<tr>
+<td>GET</td>
+<td><code>/tasks/create</code></td>
+<td><code>create</code></td>
+<td><code>tasks.create</code></td>
+<td>Show the new-record form</td>
+</tr>
+<tr>
+<td>POST</td>
+<td><code>/tasks</code></td>
+<td><code>store</code></td>
+<td><code>tasks.store</code></td>
+<td>Validate and save a new record</td>
+</tr>
+<tr>
+<td>GET</td>
+<td><code>/tasks/{task}</code></td>
+<td><code>show</code></td>
+<td><code>tasks.show</code></td>
+<td>Show one record</td>
+</tr>
+<tr>
+<td>GET</td>
+<td><code>/tasks/{task}/edit</code></td>
+<td><code>edit</code></td>
+<td><code>tasks.edit</code></td>
+<td>Show an existing-record form</td>
+</tr>
+<tr>
+<td>PUT/PATCH</td>
+<td><code>/tasks/{task}</code></td>
+<td><code>update</code></td>
+<td><code>tasks.update</code></td>
+<td>Validate and save changes</td>
+</tr>
+<tr>
+<td>DELETE</td>
+<td><code>/tasks/{task}</code></td>
+<td><code>destroy</code></td>
+<td><code>tasks.destroy</code></td>
+<td>Delete one record</td>
+</tr>
+</tbody>
+</table></div>
+<aside class="notes-important"><strong>Four CRUD operations, seven standard actions</strong><p><mark><code>create</code> shows the form; <code>store</code> saves it. <code>edit</code> shows the form; <code>update</code> saves changes.</mark> “Delete” is the CRUD operation; <code>destroy</code> is the standard resource-controller method name.</p></aside>
+<p>Avoid registering duplicate manual CRUD routes alongside the same <code>Route::resource</code> routes. A route generator connects URLs to action names; it does not write the completed validation, views, ownership checks, or business logic for you.</p>
+<figure><a href="slides/m8/010.webp" target="_blank" rel="noopener" aria-label="Open original figure at full size"><img src="slides/m8/010.webp" width="1600" height="900" loading="lazy" alt="Original Module 8 page 10 resource route table listing seven Laravel task routes."></a><figcaption>Figure 10. Original resource route table, M8 p. 10. Compare HTTP methods, route names, and URL parameters rather than memorizing URLs alone.</figcaption></figure>
+<h3 id="section-8-2">8.2 What each controller method actually does</h3>
+<p class="page-range"><a href="modules/IT0049%20-%20M8%20-%20Laravel%20Full%20CRUD%2C%20Auth%2C%20and%20Email%20Notifications.pdf#page=11" target="_blank" rel="noopener">PDF pages 11–15 · Index, create/store, show/edit, and complete CRUD ↗</a></p>
+<p><strong>Index</strong> retrieves the collection and sends it to the list view:</p>
+<pre tabindex="0"><code class="language-php">public function index()
+{
+    $tasks = Task::latest()-&gt;get();
+    return view('tasks.index', ['tasks' =&gt; $tasks]);
+}
+</code></pre>
+<p><code>latest()</code> orders by the creation timestamp by default; <code>get()</code> retrieves the results. This short unscoped example shows all matching tasks. The user-scoped version later in the module is the appropriate pattern for private records.</p>
+<p><strong>Create</strong> returns <code>view('tasks.create')</code>. <strong>Store</strong> validates, creates a record, and redirects:</p>
+<pre tabindex="0"><code class="language-php">$validated = $request-&gt;validate([
+    'title' =&gt; ['required', 'string', 'max:100'],
+]);
+Task::create($validated);
+return redirect()-&gt;route('tasks.index');
+</code></pre>
+<p>The model must allow those fields and the schema must contain them. This short fragment assumes the controller imports the model and request classes. For user-owned records, replace the unscoped <code>Task::create</code> call with the relationship-based creation explained below.</p>
+<p><strong>Show</strong> returns a details view with one <code>$task</code>. <strong>Edit</strong> returns an edit view with one <code>$task</code>. Route model binding can supply <code>Task $task</code> for <code>{task}</code> as in M7. <strong>Update</strong> validates the allowed edited fields, calls <code>$task-&gt;update($validated)</code>, and redirects. <strong>Destroy</strong> deletes the selected model after the relevant access check.</p>
+<p>The following is an explanatory completion of the delete workflow, not an extra verbatim slide listing:</p>
+<pre tabindex="0"><code class="language-php">// Controller action, after authorizing this task:
+public function destroy(Task $task)
+{
+    $task-&gt;delete();
+    return redirect()-&gt;route('tasks.index');
+}
+</code></pre>
+<pre tabindex="0"><code class="language-html">&lt;form method=&quot;POST&quot; action=&quot;{{ route('tasks.destroy', $task) }}&quot;&gt;
+    @csrf
+    @method('DELETE')
+    &lt;button type=&quot;submit&quot;&gt;Delete&lt;/button&gt;
+&lt;/form&gt;
+</code></pre>
+<p>The form uses POST transport with a DELETE override, matching the resource route. It does not issue destructive work through a normal GET link. If tasks own uploaded files, deleting the database row and cleaning the file are separate lifecycle concerns; the basic model-delete line does not automatically implement your attachment cleanup policy.</p>
+<h3 id="section-8-3">8.3 Authentication scaffolding and protected routes</h3>
+<p class="page-range"><a href="modules/IT0049%20-%20M8%20-%20Laravel%20Full%20CRUD%2C%20Auth%2C%20and%20Email%20Notifications.pdf#page=16" target="_blank" rel="noopener">PDF pages 16–20 and 23 · Classroom setup, session auth, and middleware ↗</a></p>
+<p>The module uses <strong>Laravel Breeze with Blade</strong> as its classroom authentication scaffold:</p>
+<pre tabindex="0"><code class="language-sh">composer require laravel/breeze --dev
+php artisan breeze:install blade
+php artisan migrate
+npm install
+npm run dev
+</code></pre>
+<p>These are the PDF’s workflow and scaffold, not a claim that Breeze is the default starter for every Laravel release. Composer installs the PHP package; Artisan installs the selected scaffold and runs schema changes; npm installs/builds the frontend dependencies. Use a framework/package version compatible with the classroom project.</p>
+<pre tabindex="0"><code class="language-php">Route::middleware('auth')-&gt;group(function () {
+    Route::resource('tasks', TaskController::class);
+});
+
+Route::get('/dashboard', function () {
+    return view('dashboard');
+})-&gt;middleware('auth')-&gt;name('dashboard');
+</code></pre>
+<p>The <code>auth</code> middleware requires an authenticated visitor before the protected route’s action runs. In the shown web flow, guests are redirected to login. The group protects every resource action inside it, including writes, instead of merely hiding controls on the list page.</p>
+<p>Laravel’s scaffold provides the authentication flow; the controller can obtain the current user through <code>$request-&gt;user()</code>. The comparison with CodeIgniter is conceptual: session-backed identity and a pre-controller gate exist in both, but CodeIgniter’s course filter and Laravel’s middleware are different framework APIs.</p>
+<h3 id="section-8-4">8.4 Owning records is separate from being logged in</h3>
+<p class="page-range"><a href="modules/IT0049%20-%20M8%20-%20Laravel%20Full%20CRUD%2C%20Auth%2C%20and%20Email%20Notifications.pdf#page=21" target="_blank" rel="noopener">PDF pages 21–22 · Foreign key, relationship, scoped creation, and list query ↗</a></p>
+<p>Associate each task with its owner. The course adds a <code>user_id</code> foreign key and a relationship on <code>User</code>:</p>
+<pre tabindex="0"><code class="language-php">// In the task-table schema / appropriate migration:
+$table-&gt;foreignId('user_id')-&gt;constrained();
+
+// In User.php; import App\Models\Task:
+public function tasks()
+{
+    return $this-&gt;hasMany(Task::class);
+}
+</code></pre>
+<pre tabindex="0"><code class="language-php">// After validating title:
+$request-&gt;user()-&gt;tasks()-&gt;create($validated);
+
+// Current user's list:
+$tasks = $request-&gt;user()
+    -&gt;tasks()
+    -&gt;latest()
+    -&gt;get();
+</code></pre>
+<p>Creating through the authenticated user’s <code>tasks()</code> relationship associates the task with that user. Reading through the relationship scopes the list by <code>user_id</code>. Do not trust a posted <code>user_id</code> to decide ownership when the authenticated session already identifies the user. Existing rows need an appropriate migration/data plan when introducing a new required owner field; adding a schema line in notes does not backfill old records.</p>
+<aside class="notes-clarify"><strong>Important completion of the private-record example</strong><p><mark>A user-scoped list does not automatically protect show, edit, update, destroy, or upload URLs.</mark> Those actions also need an ownership/policy check or an appropriately scoped lookup. Route model binding finds a task; <code>auth</code> identifies the visitor; authorization decides whether that visitor may act on that task. This distinction is explained in <a href="https://laravel.com/docs/12.x/authorization" target="_blank" rel="noopener">Laravel’s authorization documentation</a>.</p></aside>
+<p>For example, a policy-authorized update can check the <code>update</code> ability for the bound task before saving. This is an explicit clarification of the access-control gap in a short teaching example, not a claim that the PDF already supplies a complete policy class.</p>
+<h3 id="section-8-5">8.5 Mail settings, mailable classes, and the email view</h3>
+<p class="page-range"><a href="modules/IT0049%20-%20M8%20-%20Laravel%20Full%20CRUD%2C%20Auth%2C%20and%20Email%20Notifications.pdf#page=24" target="_blank" rel="noopener">PDF pages 24–29 · SMTP, mailable generation, content, and templates ↗</a></p>
+<p>The module calls the feature an email notification, but its code sends a <strong>Mailable</strong> using Laravel’s <code>Mail</code> facade. It is not demonstrating a separate Laravel Notification class/channel implementation.</p>
+<pre tabindex="0"><code class="language-ini">MAIL_MAILER=smtp
+MAIL_HOST=smtp.example.test
+MAIL_PORT=587
+MAIL_USERNAME=your_username
+MAIL_PASSWORD=your_password
+MAIL_FROM_ADDRESS=&quot;noreply@example.test&quot;
+MAIL_FROM_NAME=&quot;${APP_NAME}&quot;
+</code></pre>
+<p>These are placeholder/test SMTP settings. A real test service needs its own valid connection values; an example hostname will not send mail merely because it appears in <code>.env</code>. Keep real SMTP credentials out of source control and screenshots.</p>
+<pre tabindex="0"><code class="language-sh">php artisan make:mail TaskCompletedMail --markdown=mail.tasks.completed
+</code></pre>
+<p>The command generates a mailable class under <code>app/Mail</code> and a Markdown Blade template under <code>resources/views/mail/tasks/completed.blade.php</code>. The printed two-line command in the slide is one command when typed in a normal terminal.</p>
+<pre tabindex="0"><code class="language-php">&lt;?php
+namespace App\Mail;
+
+use App\Models\Task;
+use Illuminate\Mail\Mailable;
+use Illuminate\Mail\Mailables\Content;
+
+class TaskCompletedMail extends Mailable
+{
+    public function __construct(public Task $task) {}
+
+    public function content(): Content
+    {
+        return new Content(markdown: 'mail.tasks.completed');
+    }
+}
+</code></pre>
+<p>The constructor receives the task. Its public property makes task data available to the email template. <code>content()</code> chooses the template; it does not itself dispatch the email to a recipient. The complete generated class may contain additional methods beyond the focused fragment reproduced here.</p>
+<pre tabindex="0"><code class="language-html">&lt;x-mail::message&gt;
+# Task Completed
+
+The task **{{ $task-&gt;title }}** was marked complete.
+
+&lt;x-mail::button :url=&quot;route('tasks.show', $task)&quot;&gt;
+View Task
+&lt;/x-mail::button&gt;
+&lt;/x-mail::message&gt;
+</code></pre>
+<p>The mail component provides message structure. The button points to the task’s show route. That destination must still enforce login and task access; receiving a link does not authorize the recipient by itself. <code>php artisan vendor:publish --tag=laravel-mail</code> is the module’s optional command for publishing mail views for customization, not a required step just to generate a mailable.</p>
+<figure><a href="slides/m8/029.webp" target="_blank" rel="noopener" aria-label="Open original figure at full size"><img src="slides/m8/029.webp" width="1600" height="900" loading="lazy" alt="Original Module 8 page 29 Markdown email Blade view with task title and a View Task button."></a><figcaption>Figure 11. Original email template, M8 p. 29. The email is another Blade view; the controller still decides when to send it.</figcaption></figure>
+<h3 id="section-8-6">8.6 Send after success, and trigger on the transition</h3>
+<p class="page-range"><a href="modules/IT0049%20-%20M8%20-%20Laravel%20Full%20CRUD%2C%20Auth%2C%20and%20Email%20Notifications.pdf#page=30" target="_blank" rel="noopener">PDF pages 30–35 · Sending, completed workflow, notification design, and recap ↗</a></p>
+<pre tabindex="0"><code class="language-php">use App\Mail\TaskCompletedMail;
+use Illuminate\Support\Facades\Mail;
+
+// $validated comes from the intended update rules.
+// The task has already passed its access check.
+$task-&gt;update($validated);
+
+if ($task-&gt;wasChanged('status') &amp;&amp; $task-&gt;status === 'done') {
+    Mail::to($request-&gt;user()-&gt;email)
+        -&gt;send(new TaskCompletedMail($task));
+}
+return back()-&gt;with('status', 'Status updated');
+</code></pre>
+<p>This combines the update/send example with the safer trigger shown on p. 33. <code>Mail::to(...)</code> selects the recipient; <code>send(...)</code> dispatches the constructed mailable. The <code>with('status', ...)</code> value is a short redirect message for the next page, not the database task status field.</p>
+<p><code>$task-&gt;status === 'done'</code> alone asks whether the task is currently complete. It would also be true on a later title-only edit. <code>wasChanged('status')</code> asks whether that attribute changed in the just-saved model operation. Together, the checks target <strong>a change to done</strong>, avoiding routine resends when an already-complete task is edited without another status transition.</p>
+<aside class="notes-important"><strong>Make the status update possible</strong><p><mark>If this action changes <code>status</code>, its validated data, model fillable configuration, form, and schema must support <code>status</code>.</mark> A title-only validation example does not make a status transition happen. A rule such as <code>in:pending,done</code> is an illustrative application rule for the two states used by the course.</p></aside>
+<p>The sample assumes a successful model save. A full application also handles save/mail failures. The condition is not an exactly-once delivery guarantee under retries or concurrent requests, and a later genuine transition back to done can legitimately trigger another email. The course’s practical lesson is to send <strong>after the successful change</strong>, keep sensitive data out of mail, and test with safe settings.</p>
+<p><strong>M8 recap:</strong> resource routes organize seven actions; validation and Eloquent implement the writes; middleware requires login; relationships scope user records; ownership checks protect individual actions; SMTP config enables mail transport; a mailable chooses content; and a guarded post-update trigger decides when to send. This covers the module’s CRUD, authentication, and email objectives through its final recap and Q&amp;A.</p>
+<a class="back-contents" href="#contents">↑ Back to contents</a></article><section class="notes-chapter" id="comparison"><h2>Keep the two frameworks separate</h2>
+<p>This comparison gathers patterns already explained in the eight modules. Similar purpose does not mean identical method names or return values.</p>
+<div class="notes-table" tabindex="0" role="region" aria-label="Framework comparison"><table>
+<thead>
+<tr>
+<th>Responsibility</th>
+<th>CodeIgniter course pattern</th>
+<th>Laravel course pattern</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Local server</td>
+<td><code>php spark serve</code></td>
+<td><code>php artisan serve</code></td>
+</tr>
+<tr>
+<td>List records</td>
+<td><code>$model-&gt;findAll()</code></td>
+<td><code>Task::all()</code> or query <code>-&gt;get()</code></td>
+</tr>
+<tr>
+<td>One record</td>
+<td><code>$model-&gt;find($id)</code>; check null</td>
+<td><code>Task::findOrFail($id)</code> or model binding</td>
+</tr>
+<tr>
+<td>Default result style in the examples</td>
+<td><code>$task['title']</code></td>
+<td><code>$task-&gt;title</code></td>
+</tr>
+<tr>
+<td>Writable fields</td>
+<td><code>$allowedFields</code></td>
+<td><code>$fillable</code></td>
+</tr>
+<tr>
+<td>New record</td>
+<td><code>$model-&gt;insert($data)</code></td>
+<td><code>Task::create($data)</code></td>
+</tr>
+<tr>
+<td>Update</td>
+<td><code>$model-&gt;update($id, $data)</code></td>
+<td><code>$task-&gt;update($data)</code></td>
+</tr>
+<tr>
+<td>Delete</td>
+<td><code>$model-&gt;delete($id)</code></td>
+<td><code>$task-&gt;delete()</code></td>
+</tr>
+<tr>
+<td>Safe displayed text</td>
+<td><code>esc($value)</code></td>
+<td><code>{{ $value }}</code></td>
+</tr>
+<tr>
+<td>CSRF field</td>
+<td><code>csrf_field()</code> plus enabled filter</td>
+<td><code>@csrf</code> with web protection</td>
+</tr>
+<tr>
+<td>Validation</td>
+<td><code>$this-&gt;validate($rules)</code> / file validation example</td>
+<td><code>$request-&gt;validate($rules)</code></td>
+</tr>
+<tr>
+<td>Old input</td>
+<td><code>old('title', $task['title'])</code></td>
+<td><code>old('title', $task-&gt;title)</code></td>
+</tr>
+<tr>
+<td>Route access gate</td>
+<td>Registered filter alias</td>
+<td><code>auth</code> middleware</td>
+</tr>
+<tr>
+<td>Class-based record access</td>
+<td>CI Model / Query Builder</td>
+<td>Eloquent model / ORM</td>
+</tr>
+<tr>
+<td>Uploaded public-image reference</td>
+<td>Generated filename in <code>public/uploads</code> example</td>
+<td>Relative path on the <code>public</code> disk</td>
+</tr>
+</tbody>
+</table></div>
+<aside class="notes-important"><strong>The workflow worth remembering</strong><p><mark>Match the route → check identity/access → validate input → perform the intended data/file operation → return or redirect → display escaped output.</mark> The syntax changes between frameworks; the responsibilities remain recognizable.</p></aside>
+</section><section class="notes-chapter" id="coverage"><span class="chapter-number">SOURCE MAP</span><h2>PDF coverage &amp; references</h2><p>The 47 numbered sections above account for all 300 PDF pages. Title, objective, divider, recap, and Q&amp;A pages are included in their relevant chapter ranges; they are not presented as extra technical lessons. Overlapping ranges indicate that a source page contributes to more than one explanation.</p><div class="notes-table" tabindex="0" role="region" aria-label="PDF page coverage"><table><thead><tr><th>Module</th><th>Pages accounted for</th><th>Notes section → PDF pages</th></tr></thead><tbody><tr><th scope="row">M1</th><td>54 / 54</td><td><a href="#section-1-1">1.1: 1–9</a>, <a href="#section-1-2">1.2: 10–18</a>, <a href="#section-1-3">1.3: 19–32</a>, <a href="#section-1-4">1.4: 33–38</a>, <a href="#section-1-5">1.5: 39–44</a>, <a href="#section-1-6">1.6: 45–54</a></td></tr><tr><th scope="row">M2</th><td>36 / 36</td><td><a href="#section-2-1">2.1: 1–9</a>, <a href="#section-2-2">2.2: 10–16</a>, <a href="#section-2-3">2.3: 17–20</a>, <a href="#section-2-4">2.4: 21–27</a>, <a href="#section-2-5">2.5: 28–31</a>, <a href="#section-2-6">2.6: 32–36</a></td></tr><tr><th scope="row">M3</th><td>36 / 36</td><td><a href="#section-3-1">3.1: 1–9</a>, <a href="#section-3-2">3.2: 10–15</a>, <a href="#section-3-3">3.3: 16–23</a>, <a href="#section-3-4">3.4: 24–28</a>, <a href="#section-3-5">3.5: 29–36</a></td></tr><tr><th scope="row">M4</th><td>36 / 36</td><td><a href="#section-4-1">4.1: 1–9</a>, <a href="#section-4-2">4.2: 10–15</a>, <a href="#section-4-3">4.3: 16–20</a>, <a href="#section-4-4">4.4: 21–25 and 32</a>, <a href="#section-4-5">4.5: 27–31</a>, <a href="#section-4-6">4.6: 26 and pages 33–36</a></td></tr><tr><th scope="row">M5</th><td>34 / 34</td><td><a href="#section-5-1">5.1: 1–9</a>, <a href="#section-5-2">5.2: 10–15 and 26</a>, <a href="#section-5-3">5.3: 16–23</a>, <a href="#section-5-4">5.4: 24–28</a>, <a href="#section-5-5">5.5: 29–34</a></td></tr><tr><th scope="row">M6</th><td>34 / 34</td><td><a href="#section-6-1">6.1: 1–8</a>, <a href="#section-6-2">6.2: 9–12</a>, <a href="#section-6-3">6.3: 13–15</a>, <a href="#section-6-4">6.4: 16–20</a>, <a href="#section-6-5">6.5: 21–24 and 26–28</a>, <a href="#section-6-6">6.6: 25 and 29–34</a></td></tr><tr><th scope="row">M7</th><td>35 / 35</td><td><a href="#section-7-1">7.1: 1–11</a>, <a href="#section-7-2">7.2: 12–15</a>, <a href="#section-7-3">7.3: 16–22</a>, <a href="#section-7-4">7.4: 23–24</a>, <a href="#section-7-5">7.5: 25–27 and 32</a>, <a href="#section-7-6">7.6: 28–29 and 33</a>, <a href="#section-7-7">7.7: 30–31 and 34–35</a></td></tr><tr><th scope="row">M8</th><td>35 / 35</td><td><a href="#section-8-1">8.1: 1–10</a>, <a href="#section-8-2">8.2: 11–15</a>, <a href="#section-8-3">8.3: 16–20 and 23</a>, <a href="#section-8-4">8.4: 21–22</a>, <a href="#section-8-5">8.5: 24–29</a>, <a href="#section-8-6">8.6: 30–35</a></td></tr></tbody></table></div><h3>Original course files</h3><ol class="source-files"><li><a href="modules/IT0049%20-%20M1%20-%20CodeIgniter%20Foundations.pdf" target="_blank" rel="noopener">IT0049 - M1 - CodeIgniter Foundations.pdf ↗</a></li><li><a href="modules/IT0049%20-%20M2%20-%20CodeIgniter%20Data%20Layer.pdf" target="_blank" rel="noopener">IT0049 - M2 - CodeIgniter Data Layer.pdf ↗</a></li><li><a href="modules/IT0049%20-%20M3%20-%20Forms%2C%20Validation%2C%20File%20Upload%2C%20and%20CRUD.pdf" target="_blank" rel="noopener">IT0049 - M3 - Forms, Validation, File Upload, and CRUD.pdf ↗</a></li><li><a href="modules/IT0049%20-%20M4%20-%20CodeIgniter%20Authentication%20and%20Sessions.pdf" target="_blank" rel="noopener">IT0049 - M4 - CodeIgniter Authentication and Sessions.pdf ↗</a></li><li><a href="modules/IT0049%20-%20M5%20-%20Laravel%20Foundations.pdf" target="_blank" rel="noopener">IT0049 - M5 - Laravel Foundations.pdf ↗</a></li><li><a href="modules/IT0049%20-%20M6%20-%20Laravel%20Data%20Layer.pdf" target="_blank" rel="noopener">IT0049 - M6 - Laravel Data Layer.pdf ↗</a></li><li><a href="modules/IT0049%20-%20M7%20-%20Laravel%20Forms%2C%20Validation%2C%20and%20File%20Upload.pdf" target="_blank" rel="noopener">IT0049 - M7 - Laravel Forms, Validation, and File Upload.pdf ↗</a></li><li><a href="modules/IT0049%20-%20M8%20-%20Laravel%20Full%20CRUD%2C%20Auth%2C%20and%20Email%20Notifications.pdf" target="_blank" rel="noopener">IT0049 - M8 - Laravel Full CRUD, Auth, and Email Notifications.pdf ↗</a></li></ol><h3>Supplementary accuracy checks</h3><p>The notes primarily follow the eight supplied PDFs. Official documentation was used to clarify the explicitly labeled points below; it does not replace your classroom source or prescribe a framework upgrade.</p><ul><li><a href="https://codeigniter4.github.io/userguide/incoming/routing.html">CodeIgniter routing</a>: explicit handlers, placeholders, and the default method.</li><li><a href="https://codeigniter4.github.io/userguide/libraries/validation.html">CodeIgniter validation</a>: distinct validation rules and field requirements.</li><li><a href="https://codeigniter4.github.io/userguide/libraries/security.html">CodeIgniter CSRF protection</a>: token fields work with enabled protection.</li><li><a href="https://codeigniter4.github.io/userguide/database/connecting.html">CodeIgniter database connections</a>: a database operation is required to test database access.</li><li><a href="https://codeigniter4.github.io/userguide/libraries/sessions.html">CodeIgniter sessions</a>: session operations and flash-data lifecycle.</li><li><a href="https://laravel.com/docs/12.x/requests">Laravel request handling</a> and <a href="https://laravel.com/docs/12.x/authorization">authorization</a>: request context, identity, and resource permissions.</li></ul><p>Original figures belong to the supplied course materials. Flow figures in these notes are explanatory redrawings. No exercise answers or external exam were used as the source of this reviewer.</p><a class="back-contents" href="#contents">↑ Back to contents</a></section><footer class="notes-footer"><a href="index.html">← Return to the study website</a><span>Framework Party · Complete notes, one page at a time.</span></footer></main></div></body></html>
