@@ -2,6 +2,10 @@
 
 A mobile-friendly IT0049 study space for CodeIgniter and Laravel.
 
+## A quieter interface
+
+The home screen offers Study and Practice. The lesson library shows one module at a time. Additional practice modes, references, progress, appearance, and the timer are available on demand. All 31 lessons, 93 recall prompts, 128 practice questions, and 300 original slides remain intact.
+
 ## Study your way
 
 - **Original slides:** all 300 pages of the eight course modules, with enlarged screenshots, extracted text, bookmarks, and studied-page marks.

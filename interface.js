@@ -31,7 +31,7 @@
     document.querySelectorAll('[name="appearance-mode"]').forEach(el=>el.checked=el.value===prefs.mode);
     document.querySelectorAll('[name="appearance-palette"]').forEach(el=>el.checked=el.value===prefs.palette);
     document.querySelector('#reduce-motion').checked=prefs.reduceMotion;document.querySelector('#large-text').checked=prefs.largeText;
-    const label=document.querySelector('#appearance-open');label.innerHTML=icon(mode==='dark'?'moon':'palette');label.title='Choose a theme';
+    const label=document.querySelector('#appearance-open');label.innerHTML=icon(mode==='dark'?'moon':'palette')+'<span>Appearance</span>';label.title='Choose a theme';
     try{localStorage.setItem(KEY,JSON.stringify(prefs));}catch{}
   }
   const appearance=document.createElement('dialog');appearance.id='appearance-dialog';appearance.setAttribute('aria-labelledby','appearance-title');
@@ -41,7 +41,7 @@
   document.querySelector('#appearance-close').onclick=document.querySelector('#appearance-done').onclick=()=>appearance.close();
   appearance.addEventListener('change',event=>{const el=event.target;if(el.name==='appearance-mode')prefs.mode=el.value;if(el.name==='appearance-palette')prefs.palette=el.value;if(el.id==='large-text')prefs.largeText=el.checked;if(el.id==='reduce-motion')prefs.reduceMotion=el.checked;apply();});
   media.addEventListener('change',apply);apply();
-  const names={home:['home','Home'],materials:['book','Slides'],guided:['spark','Guided study'],bank:['grid','Practice bank'],progress:['chart','My progress']};
+  const names={home:['home','Home'],materials:['book','Slides'],guided:['book','Study'],bank:['grid','Question bank'],practice:['spark','Practice'],progress:['chart','My progress']};
   document.querySelectorAll('.topbar nav [data-page]').forEach(el=>{const [im,text]=names[el.dataset.page];el.innerHTML=icon(im)+`<span>${text}</span>`;});
   const filters=document.createElement('button');filters.className='mobile-filter-toggle';filters.id='mobile-filter-toggle';filters.setAttribute('aria-expanded','false');filters.setAttribute('aria-controls','module-select');
   document.querySelector('.sidebar').prepend(filters);
@@ -74,4 +74,6 @@
   let queued=false;const observer=new MutationObserver(()=>{if(queued)return;queued=true;requestAnimationFrame(()=>{queued=false;enhance();});});observer.observe(document.querySelector('main'),{childList:true,subtree:true});enhance();
   document.addEventListener('focusin',e=>{if(e.target.matches('textarea,input[type="search"],input[type="text"],input:not([type])'))document.body.classList.add('keyboard-editing');});
   document.addEventListener('focusout',()=>setTimeout(()=>{if(!document.activeElement.matches('textarea,input[type="search"],input[type="text"],input:not([type])'))document.body.classList.remove('keyboard-editing');},80));
+  document.addEventListener('click',event=>{const menu=document.querySelector('#more-menu');if(!menu.contains(event.target))menu.open=false;});
+  document.addEventListener('keydown',event=>{const menu=document.querySelector('#more-menu');if(event.key==='Escape'&&menu.open){menu.open=false;menu.querySelector('summary').focus();}});
 })();
