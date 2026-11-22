@@ -1,0 +1,42 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="theme-color" content="#e0d8fc">
+  <meta name="description" content="An IT0049 study arcade built from your eight CodeIgniter and Laravel modules. Practice questions, flashcards, recall, and saved progress.">
+  <title>Framework Party · IT0049 study arcade</title>
+  <script src="appearance.js?v=4"></script>
+  <link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="styles.css?v=4">
+  <link rel="stylesheet" href="design.css?v=4">
+  <script src="content.js?v=4" defer></script>
+  <script src="lessons.js?v=4" defer></script>
+  <script src="slides.js?v=4" defer></script>
+  <script src="guided-content.js?v=4" defer></script>
+  <script src="guided.js?v=4" defer></script>
+  <script src="app.js?v=4" defer></script>
+  <script src="interface.js?v=4" defer></script>
+</head>
+<body>
+  <a class="skip" href="#main">Skip to content</a>
+  <header class="topbar">
+    <button class="brand" data-page="home" aria-label="Framework Party home"><span class="brand-icon">{<span>✳</span>}</span><span>framework<span class="brand-party">party<span class="brand-dot">.</span></span></span></button>
+    <nav aria-label="Main navigation"><button data-page="home">Home</button><button data-page="materials">Original slides</button><button data-page="guided">Guided study</button><button data-page="bank">Question bank</button><button data-page="progress">My progress</button></nav>
+    <button class="timer-pill" id="focus-open" aria-label="Open focus timer"><span>◷</span> <span id="focus-label">25:00</span></button>
+    <button id="appearance-open" aria-label="Choose a theme" aria-haspopup="dialog" aria-controls="appearance-dialog">◐</button>
+  </header>
+  <div class="app-shell">
+    <aside class="sidebar" aria-label="Study modules">
+      <div class="course"><span class="eyebrow">YOUR COURSE</span><strong>IT0049</strong><span>Web System Technologies</span></div>
+      <div class="sidebar-title"><span class="eyebrow">YOUR MODULES</span><button id="select-all">Select all</button></div>
+      <div id="module-select"></div>
+      <div class="sidebar-foot"><span class="tiny-book">▤</span><strong>Your slides. Your pace.</strong><p>Every question links back to a page in your modules.</p><span class="local-badge">● Progress saved on this browser</span></div>
+    </aside>
+    <main id="main" tabindex="-1"></main>
+  </div>
+  <dialog id="focus-dialog" aria-labelledby="focus-title"><div class="dialog-head"><span class="eyebrow">A LITTLE FOCUS GOES A LONG WAY</span><button id="focus-close" class="icon-button" aria-label="Close focus timer">×</button></div><h2 id="focus-title">One session at a time.</h2><p>Pick a module, settle in, and take a break when the timer ends.</p><div id="focus-clock" class="focus-clock">25:00</div><p id="focus-status" aria-live="polite">Ready when you are.</p><div class="button-row"><button class="primary" id="focus-toggle">Start timer</button><button class="secondary" id="focus-reset">Reset</button></div></dialog>
+  <dialog id="slide-dialog" aria-labelledby="slide-dialog-title"><div class="dialog-head"><strong id="slide-dialog-title">Module slide</strong><div class="button-row"><button class="secondary" id="slide-zoom">View at full size</button><button class="icon-button" id="slide-close" aria-label="Close enlarged slide">×</button></div></div><div class="slide-zoom-area"><img id="slide-enlarged" alt=""></div><p class="small">Use full size to read small code. Scroll inside the image area to move around.</p></dialog>
+  <div id="toast" role="status" class="toast" hidden></div>
+</body>
+</html>
