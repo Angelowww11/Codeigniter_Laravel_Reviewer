@@ -10,13 +10,13 @@ The notes are static HTML, readable without JavaScript, mobile friendly, and sty
 
 ## A quieter interface
 
-The home screen offers Study and Practice. The lesson library shows one module at a time. Additional practice modes, references, progress, appearance, and the timer are available on demand. All 31 lessons, 93 recall prompts, 128 practice questions, and 300 original slides remain intact.
+The home screen offers Study and Practice. The lesson library shows one module at a time. Additional practice modes, references, progress, appearance, and the timer are available on demand. All 31 lessons, 93 recall prompts, 480 practice questions, and 300 original slides remain intact.
 
 ## Study your way
 
 - **Original slides:** all 300 pages of the eight course modules, with enlarged screenshots, extracted text, bookmarks, and studied-page marks.
 - **Guided study:** 31 rewritten lessons with small explanations, memory cues, worked examples, and 93 self-assessed recall checks. An in-app review list returns topics after increasing intervals.
-- **Practice:** 128 questions with explanations and original PDF page references, across practice quizzes, typed recall, flashcards, training loops, timed rehearsals, and an ordered practice path.
+- **Practice:** 480 questions with explanations and original PDF page references, across practice quizzes, typed recall, flashcards, training loops, timed rehearsals, and an ordered practice path.
 - **Your progress:** saved sessions, a daily question goal, and badges earned from real activity.
 
 Use the palette button in the header to choose **Daydream**, **Lagoon**, or **Peach Club**, with **Light**, **Dark**, or **Auto** appearance. Roomier reading and quiet motion are available there too.
@@ -52,3 +52,5 @@ Course PDFs are in `modules/`, their rendered slide screenshots are in `slides/`
 The practice, guided-study, slide-reader, appearance, and mobile navigation flows were exercised in the browser. All six palette/mode combinations were checked for automated accessibility violations on the home screen. Phone layouts were checked for overflow, readable lesson text, and accessible module selection. Reduced motion and native system appearance are respected.
 
 The editable note chapters are in notes-source/. Rebuild reviewer.html with python tools/build_reviewer.py. The generator requires Python markdown-it-py and Node.js.
+
+Each module contains 60 questions. The Practice screen permits 1–60 questions per new session, including the optional practice modes. Existing question IDs and saved answer records remain compatible.
