@@ -1,0 +1,259 @@
+### 7.1 Displaying a form and receiving its submission
+<p class="page-range">PDF pages 1–11 · Objectives, named routes, CSRF, form, and Request</p>
+
+Laravel follows the same form lifecycle as the CodeIgniter modules: display a form, receive submitted data, validate it, persist an allowed change, and return a useful response. The API names differ, but the checkpoint before saving remains.
+
+```php
+// routes/web.php; import the controller.
+use App\Http\Controllers\TaskController;
+
+Route::get('/tasks/create', [TaskController::class, 'create'])
+    ->name('tasks.create');
+Route::post('/tasks', [TaskController::class, 'store'])
+    ->name('tasks.store');
+```
+
+`create` displays a form; `store` receives and saves a new record. These names become especially important in M8’s resource controller. A **route name**, such as `tasks.store`, is a label used by helpers; it is not the literal URL path and not the view filename.
+
+```html
+<!-- resources/views/tasks/create.blade.php -->
+<form method="POST" action="{{ route('tasks.store') }}">
+    @csrf
+    <label for="title">Title</label>
+    <input id="title" name="title" value="{{ old('title') }}">
+    @error('title')
+        <p>{{ $message }}</p>
+    @enderror
+    <button type="submit">Save</button>
+</form>
+```
+
+`route('tasks.store')` builds a URL from the registered route name. `@csrf` inserts the token field used by Laravel’s web CSRF protection. The course expects it on POST, PUT, PATCH, and DELETE forms. `name="title"` determines the key received by the server. Blade escapes both the restored value and error text with `{{ }}`.
+
+The controller imports `Illuminate\Http\Request` and can receive `Request $request` as a method parameter. This is request injection: Laravel supplies the current request object. It does not mean the application has already validated the submitted fields.
+
+### 7.2 Request validation, old input, and errors
+<p class="page-range">PDF pages 12–15 · Validation result and feedback</p>
+
+```php
+use Illuminate\Http\Request;
+
+public function store(Request $request)
+{
+    $validated = $request->validate([
+        'title' => ['required', 'string', 'max:100'],
+    ]);
+    // Save only the intended validated fields here.
+}
+```
+
+For the module’s ordinary web-form requests, validation failure redirects back with errors and old input. Successful validation returns an array in `$validated`, which can be passed to the model after the relevant write and access conditions are satisfied. The controller does not need to hand-build the same failure branch shown in the earlier CodeIgniter example. Requests expecting JSON have different error-response handling; the slide describes the browser form case.
+
+| Item | Job |
+| --- | --- |
+| `required` | Require the title value |
+| `string` | Require an appropriate string value |
+| `max:100` | Limit this string to 100 characters |
+| `old('title')` | Restore the previous submitted title |
+| `@error('title')` | Enter a Blade block when that field has a validation error |
+| `$message` | The error message inside that Blade error block |
+
+<aside class="notes-important"><strong>Keep three limits/configurations straight</strong><p><mark>Database column size, validation rules, and <code>$fillable</code> do different jobs.</mark> A 150-character column can intentionally be paired with a stricter 100-character application rule. Neither setting automatically creates the other.</p></aside>
+
+**Example:** submitting a blank title fails validation. The browser returns to the form with a title error. If a long but nonblank title fails instead, `old('title')` keeps that submitted text visible so the user can shorten it. Errors and old input are user feedback; the invalid row should not already have been saved.
+
+### 7.3 Edit, model binding, and PATCH submission
+<p class="page-range">PDF pages 16–22 · Update routes, bound records, and forms</p>
+
+```php
+Route::get('/tasks/{task}/edit', [TaskController::class, 'edit'])
+    ->name('tasks.edit');
+Route::patch('/tasks/{task}', [TaskController::class, 'update'])
+    ->name('tasks.update');
+Route::post('/tasks/{task}/upload', [TaskController::class, 'upload'])
+    ->name('tasks.upload');
+```
+
+With `use App\Models\Task`, an action such as `edit(Task $task)` uses **implicit route model binding** for the matching `{task}` parameter. Laravel resolves the selected task model instead of making the action manually call `findOrFail($id)`. An unfound model normally produces a 404. Binding finds the record; it does not alone prove the current user owns it.
+
+```php
+public function edit(Task $task)
+{
+    return view('tasks.edit', ['task' => $task]);
+}
+
+public function update(Request $request, Task $task)
+{
+    $validated = $request->validate([
+        'title' => ['required', 'string', 'max:100'],
+    ]);
+    $task->update($validated);
+    return redirect()->route('tasks.index');
+}
+```
+
+```html
+<form method="POST" action="{{ route('tasks.update', $task) }}">
+    @csrf
+    @method('PATCH')
+    <input name="title" value="{{ old('title', $task->title) }}">
+    <button type="submit">Update</button>
+</form>
+```
+
+HTML forms submit using POST here. `@method('PATCH')` supplies Laravel’s hidden method override so the request matches the PATCH route. It does not replace `@csrf`. `old('title', $task->title)` prefers the failed submitted input, falling back to the currently saved value when old input is absent.
+
+<figure><img src="slides/m7/022.webp" width="1600" height="900" loading="lazy" alt="Original Module 7 page 22 Blade edit form with POST, csrf, PATCH method spoofing, and old input fallback."><figcaption>Figure 9. Original edit form, M7 p. 22. Four separate pieces matter: the named action, POST transport, PATCH override, and CSRF token.</figcaption></figure>
+
+### 7.4 Upload form and file validation
+<p class="page-range">PDF pages 23–24 · Multipart request and optional image rules</p>
+
+```html
+<form method="POST" action="{{ route('tasks.upload', $task) }}"
+      enctype="multipart/form-data">
+    @csrf
+    <input type="file" name="attachment">
+    <button type="submit">Upload</button>
+</form>
+```
+
+`enctype` makes the browser send file bytes. The controller validates the `attachment` field before storage:
+
+```php
+$request->validate([
+    'attachment' => [
+        'nullable', 'image', 'mimes:jpg,jpeg,png', 'max:2048',
+    ],
+]);
+```
+
+`nullable` makes absence/null acceptable in the illustrated optional-upload workflow; it does not mean any nonempty value is acceptable. `image` checks that the upload is an image. `mimes` restricts accepted file types. For this **file** rule, `max:2048` is 2048 KB, approximately 2 MB, not 2048 characters or pixels. Compare this with the earlier string `max:100`.
+
+<aside class="notes-important"><strong>Same rule name, different measured quantity</strong><p><mark><code>max:100</code> on a string limits characters; <code>max:2048</code> on a file limits file size in KB.</mark> Read the field’s type and the complete rule set before interpreting a number.</p></aside>
+
+### 7.5 Store a generated path and make it publicly displayable
+<p class="page-range">PDF pages 25–27 and 32 · Public disk, database field, and URL</p>
+
+```php
+if ($request->hasFile('attachment')) {
+    $path = $request->file('attachment')
+        ->store('attachments', 'public');
+    $task->update(['attachment' => $path]);
+}
+```
+
+`hasFile()` checks whether a file was supplied, which matters when the upload is optional. `store('attachments', 'public')` stores it in the `attachments` directory on Laravel’s configured public disk and returns the generated relative path. The database saves that path, for example `attachments/generated-name.png`, rather than the uploaded file object or its raw bytes.
+
+The course assumes a configured public disk. With the standard local public-disk arrangement, files live under `storage/app/public`; the following command exposes them through `public/storage`:
+
+```sh
+php artisan storage:link
+```
+
+```html
+@if ($task->attachment)
+    <img src="{{ asset('storage/'.$task->attachment) }}"
+         alt="Task attachment" width="120">
+@endif
+```
+
+The path returned by `store()` and the URL prefix must match. `asset()` builds a URL; it does not create the link or move the file. The database must contain an `attachment` column and the model must allow writing it. A working file in storage with a failed database update is not a completed upload workflow.
+
+### 7.6 Replacement order and image preparation
+<p class="page-range">PDF pages 28–29 and 33 · Lifecycle, processing, and cleanup</p>
+
+The module’s checklist says to **delete old files only after replacement succeeds**. Its short p. 28 fragment deletes the old file before storing the new one. Those are not equivalent in a failure case: if storage fails after deletion, the old attachment is gone and no working replacement exists.
+
+<aside class="notes-clarify"><strong>Use the complete checklist to resolve the short snippet</strong><p>For a replacement, validate first, store/process the new file, save its new path successfully, then remove the old file. If saving the new path fails, clean up the newly stored file and retain the old reference. File storage and a database update are separate operations; a database transaction alone does not undo filesystem changes.</p></aside>
+
+Conceptually, the sequence is:
+
+```text
+Remember old path
+    → validate and store the replacement
+    → successfully update the task's path
+    → delete the old path from the same disk
+```
+
+`Storage::disk('public')->delete($oldPath)` deletes a path on that disk; import `Illuminate\Support\Facades\Storage` before using it. This is an old-path cleanup operation, not the upload itself.
+
+The slides also show image preparation through **Intervention Image**:
+
+```php
+use Intervention\Image\Laravel\Facades\Image;
+
+$name = uniqid('avatar_') . '.jpg';
+$path = storage_path('app/public/attachments/' . $name);
+Image::read($request->file('attachment'))
+    ->cover(300, 300)
+    ->save($path);
+```
+
+`cover(300, 300)` prepares a square image by covering/cropping the target area. The sample filename and processing call come from the PDF. Intervention is a separate package that must be installed/configured with a compatible version, and the destination directory must exist. After processing, save the corresponding relative path in the task, not the absolute `$path` containing the local machine’s directories. Do not trust the original client filename as the storage path.
+
+### 7.7 Form Request classes and the finished update flow
+<p class="page-range">PDF pages 30–31 and 34–35 · Validation organization and recap</p>
+
+```sh
+php artisan make:request UpdateTaskRequest
+```
+
+```php
+// In UpdateTaskRequest:
+public function rules(): array
+{
+    return ['title' => ['required', 'string', 'max:100']];
+}
+```
+
+A **Form Request** moves larger validation rules out of a crowded controller. A rewritten usage example is to inject `UpdateTaskRequest $request` and use `$request->validated()` for the data. Import the generated request class and configure its authorization behavior for the intended action; organizing validation does not remove the need for access checks.
+
+**M7 recap:** GET shows a form; POST/PATCH sends a change; validation checks it; `@error` explains failure; `old()` preserves entered text; Eloquent updates the record. Files add multipart encoding, appropriate file rules, generated storage paths, a public-storage link for display, and careful replacement cleanup. The source’s objectives, workflow comparison, recap, and Q&A all reinforce these same steps.
+
+
+### 7.8 Additional upload and Form Request connections
+<p class="page-range">PDF pages 7–34 · Controller generation, complete upload, and validation organization</p>
+
+The module first generates its controller with `php artisan make:controller TaskController`. Register the routes in `routes/web.php` after the class exists. Use named routes consistently in the create, edit, and upload forms.
+
+The following upload action combines the validation, optional-file check, path update, and redirect from the separate slides:
+
+```php
+public function upload(Request $request, Task $task)
+{
+    // Check the user's permission for this task before this work.
+    $request->validate([
+        'attachment' => [
+            'nullable', 'image', 'mimes:jpg,jpeg,png', 'max:2048',
+        ],
+    ]);
+
+    if ($request->hasFile('attachment')) {
+        $path = $request->file('attachment')
+            ->store('attachments', 'public');
+        $task->update(['attachment' => $path]);
+    }
+
+    return redirect()->route('tasks.show', $task);
+}
+```
+
+This example assumes the required imports, database column, fillable field, and successful file/database operations. It illustrates a new upload, not the full failure-handling sequence for replacing an old file.
+
+The optional image-processing example creates a filename with `uniqid('avatar_') . '.jpg'`. Its absolute write destination is `storage_path('app/public/attachments/' . $name)`. Save the corresponding relative value `attachments/` plus that filename in the database. Do not save both the raw uploaded file object and a generated path as competing representations of the same attachment.
+
+`Image::read(...)->cover(300, 300)->save($path)` processes and saves the image. `store('attachments', 'public')` stores an uploaded file. These are different example paths through the file workflow. Select the intended path and preserve validation, directory setup, path persistence, and cleanup around it.
+
+The Form Request example supplies a `rules()` method. A controller must use that request class for its rules to run:
+
+```php
+use App\Http\Requests\UpdateTaskRequest;
+
+public function update(UpdateTaskRequest $request, Task $task)
+{
+    $task->update($request->validated());
+    return redirect()->route('tasks.index');
+}
+```
+
+This is an explanatory connection to the generated class. Configure its authorization behavior and the task's access checks. <mark>Generating a Form Request file does not attach it to every controller action automatically.</mark>

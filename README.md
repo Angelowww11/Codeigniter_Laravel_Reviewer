@@ -4,7 +4,7 @@ A mobile-friendly IT0049 study space for CodeIgniter and Laravel.
 
 ## Reviewer Notes
 
-Open [`reviewer.html`](reviewer.html) from the **Reviewer Notes** tab for a continuous reading version: roughly 11,200 words including code, 47 sections covering all 300 PDF pages, 11 figures, highlighted takeaways, tables, explained code, and original PDF page links. All eight chapters remain open; there are no quizzes, answer reveals, or study-state controls in this document. The existing study website and original slides are preserved.
+Open [`reviewer.html`](reviewer.html) from the **Reviewer Notes** tab for a continuous reading version: roughly 13,900 words including code, 55 sections covering all 300 PDF pages, 11 figures, highlighted takeaways, tables, explained code, and original PDF page links. All eight chapters remain open; there are no quizzes, answer reveals, or study-state controls in this document. The existing study website and original slides are preserved.
 
 The notes are static HTML, readable without JavaScript, mobile friendly, and styled for browser printing. They follow the classroom PDFs and explicitly label corrections, prerequisites, and additional explanations. Official documentation links support those clarifications.
 
@@ -50,3 +50,5 @@ Course PDFs are in `modules/`, their rendered slide screenshots are in `slides/`
 ## Validation
 
 The practice, guided-study, slide-reader, appearance, and mobile navigation flows were exercised in the browser. All six palette/mode combinations were checked for automated accessibility violations on the home screen. Phone layouts were checked for overflow, readable lesson text, and accessible module selection. Reduced motion and native system appearance are respected.
+
+The editable note chapters are in notes-source/. Rebuild reviewer.html with python tools/build_reviewer.py. The generator requires Python markdown-it-py and Node.js.

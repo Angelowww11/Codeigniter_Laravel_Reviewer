@@ -1,0 +1,291 @@
+### 8.1 A resource controller gives CRUD a standard map
+<p class="page-range">PDF pages 1–10 · Objectives, generation, resource routes, and method map</p>
+
+Full CRUD is the complete create/read/update/delete workflow for a resource. Laravel’s **resource controller** uses conventional action names so another developer can predict which method shows a form and which method saves it.
+
+```sh
+php artisan make:controller TaskController --resource --model=Task
+php artisan route:list --name=tasks
+```
+
+The generator creates a controller skeleton. The option is typed with two ordinary hyphens: `--resource`; the slide’s typographic dash should not be pasted as a different terminal character. Register the route before expecting it to appear in `route:list`:
+
+```php
+use App\Http\Controllers\TaskController;
+Route::resource('tasks', TaskController::class);
+```
+
+| HTTP method | URL | Controller action | Route name | Purpose |
+| --- | --- | --- | --- | --- |
+| GET | `/tasks` | `index` | `tasks.index` | List records |
+| GET | `/tasks/create` | `create` | `tasks.create` | Show the new-record form |
+| POST | `/tasks` | `store` | `tasks.store` | Validate and save a new record |
+| GET | `/tasks/{task}` | `show` | `tasks.show` | Show one record |
+| GET | `/tasks/{task}/edit` | `edit` | `tasks.edit` | Show an existing-record form |
+| PUT/PATCH | `/tasks/{task}` | `update` | `tasks.update` | Validate and save changes |
+| DELETE | `/tasks/{task}` | `destroy` | `tasks.destroy` | Delete one record |
+
+<aside class="notes-important"><strong>Four CRUD operations, seven standard actions</strong><p><mark><code>create</code> shows the form; <code>store</code> saves it. <code>edit</code> shows the form; <code>update</code> saves changes.</mark> “Delete” is the CRUD operation; <code>destroy</code> is the standard resource-controller method name.</p></aside>
+
+Avoid registering duplicate manual CRUD routes alongside the same `Route::resource` routes. A route generator connects URLs to action names; it does not write the completed validation, views, ownership checks, or business logic for you.
+
+<figure><img src="slides/m8/010.webp" width="1600" height="900" loading="lazy" alt="Original Module 8 page 10 resource route table listing seven Laravel task routes."><figcaption>Figure 10. Original resource route table, M8 p. 10. Compare HTTP methods, route names, and URL parameters rather than memorizing URLs alone.</figcaption></figure>
+
+### 8.2 What each controller method actually does
+<p class="page-range">PDF pages 11–15 · Index, create/store, show/edit, and complete CRUD</p>
+
+**Index** retrieves the collection and sends it to the list view:
+
+```php
+public function index()
+{
+    $tasks = Task::latest()->get();
+    return view('tasks.index', ['tasks' => $tasks]);
+}
+```
+
+`latest()` orders by the creation timestamp by default; `get()` retrieves the results. This short unscoped example shows all matching tasks. The user-scoped version later in the module is the appropriate pattern for private records.
+
+**Create** returns `view('tasks.create')`. **Store** validates, creates a record, and redirects:
+
+```php
+$validated = $request->validate([
+    'title' => ['required', 'string', 'max:100'],
+]);
+Task::create($validated);
+return redirect()->route('tasks.index');
+```
+
+The model must allow those fields and the schema must contain them. This short fragment assumes the controller imports the model and request classes. For user-owned records, replace the unscoped `Task::create` call with the relationship-based creation explained below.
+
+**Show** returns a details view with one `$task`. **Edit** returns an edit view with one `$task`. Route model binding can supply `Task $task` for `{task}` as in M7. **Update** validates the allowed edited fields, calls `$task->update($validated)`, and redirects. **Destroy** deletes the selected model after the relevant access check.
+
+The following is an explanatory completion of the delete workflow, not an extra verbatim slide listing:
+
+```php
+// Controller action, after authorizing this task:
+public function destroy(Task $task)
+{
+    $task->delete();
+    return redirect()->route('tasks.index');
+}
+```
+
+```html
+<form method="POST" action="{{ route('tasks.destroy', $task) }}">
+    @csrf
+    @method('DELETE')
+    <button type="submit">Delete</button>
+</form>
+```
+
+The form uses POST transport with a DELETE override, matching the resource route. It does not issue destructive work through a normal GET link. If tasks own uploaded files, deleting the database row and cleaning the file are separate lifecycle concerns; the basic model-delete line does not automatically implement your attachment cleanup policy.
+
+### 8.3 Authentication scaffolding and protected routes
+<p class="page-range">PDF pages 16–20 and 23 · Classroom setup, session auth, and middleware</p>
+
+The module uses **Laravel Breeze with Blade** as its classroom authentication scaffold:
+
+```sh
+composer require laravel/breeze --dev
+php artisan breeze:install blade
+php artisan migrate
+npm install
+npm run dev
+```
+
+These are the PDF’s workflow and scaffold, not a claim that Breeze is the default starter for every Laravel release. Composer installs the PHP package; Artisan installs the selected scaffold and runs schema changes; npm installs/builds the frontend dependencies. Use a framework/package version compatible with the classroom project.
+
+```php
+Route::middleware('auth')->group(function () {
+    Route::resource('tasks', TaskController::class);
+});
+
+Route::get('/dashboard', function () {
+    return view('dashboard');
+})->middleware('auth')->name('dashboard');
+```
+
+The `auth` middleware requires an authenticated visitor before the protected route’s action runs. In the shown web flow, guests are redirected to login. The group protects every resource action inside it, including writes, instead of merely hiding controls on the list page.
+
+Laravel’s scaffold provides the authentication flow; the controller can obtain the current user through `$request->user()`. The comparison with CodeIgniter is conceptual: session-backed identity and a pre-controller gate exist in both, but CodeIgniter’s course filter and Laravel’s middleware are different framework APIs.
+
+### 8.4 Owning records is separate from being logged in
+<p class="page-range">PDF pages 21–22 · Foreign key, relationship, scoped creation, and list query</p>
+
+Associate each task with its owner. The course adds a `user_id` foreign key and a relationship on `User`:
+
+```php
+// In the task-table schema / appropriate migration:
+$table->foreignId('user_id')->constrained();
+
+// In User.php; import App\Models\Task:
+public function tasks()
+{
+    return $this->hasMany(Task::class);
+}
+```
+
+```php
+// After validating title:
+$request->user()->tasks()->create($validated);
+
+// Current user's list:
+$tasks = $request->user()
+    ->tasks()
+    ->latest()
+    ->get();
+```
+
+Creating through the authenticated user’s `tasks()` relationship associates the task with that user. Reading through the relationship scopes the list by `user_id`. Do not trust a posted `user_id` to decide ownership when the authenticated session already identifies the user. Existing rows need an appropriate migration/data plan when introducing a new required owner field; adding a schema line in notes does not backfill old records.
+
+<aside class="notes-clarify"><strong>Important completion of the private-record example</strong><p><mark>A user-scoped list does not automatically protect show, edit, update, destroy, or upload URLs.</mark> Those actions also need an ownership/policy check or an appropriately scoped lookup. Route model binding finds a task; <code>auth</code> identifies the visitor; authorization decides whether that visitor may act on that task. This distinction is explained in <a href="https://laravel.com/docs/12.x/authorization" target="_blank" rel="noopener">Laravel’s authorization documentation</a>.</p></aside>
+
+For example, a policy-authorized update can check the `update` ability for the bound task before saving. This is an explicit clarification of the access-control gap in a short teaching example, not a claim that the PDF already supplies a complete policy class.
+
+### 8.5 Mail settings, mailable classes, and the email view
+<p class="page-range">PDF pages 24–29 · SMTP, mailable generation, content, and templates</p>
+
+The module calls the feature an email notification, but its code sends a **Mailable** using Laravel’s `Mail` facade. It is not demonstrating a separate Laravel Notification class/channel implementation.
+
+```ini
+MAIL_MAILER=smtp
+MAIL_HOST=smtp.example.test
+MAIL_PORT=587
+MAIL_USERNAME=your_username
+MAIL_PASSWORD=your_password
+MAIL_FROM_ADDRESS="noreply@example.test"
+MAIL_FROM_NAME="${APP_NAME}"
+```
+
+These are placeholder/test SMTP settings. A real test service needs its own valid connection values; an example hostname will not send mail merely because it appears in `.env`. Keep real SMTP credentials out of source control and screenshots.
+
+```sh
+php artisan make:mail TaskCompletedMail --markdown=mail.tasks.completed
+```
+
+The command generates a mailable class under `app/Mail` and a Markdown Blade template under `resources/views/mail/tasks/completed.blade.php`. The printed two-line command in the slide is one command when typed in a normal terminal.
+
+```php
+<?php
+namespace App\Mail;
+
+use App\Models\Task;
+use Illuminate\Mail\Mailable;
+use Illuminate\Mail\Mailables\Content;
+
+class TaskCompletedMail extends Mailable
+{
+    public function __construct(public Task $task) {}
+
+    public function content(): Content
+    {
+        return new Content(markdown: 'mail.tasks.completed');
+    }
+}
+```
+
+The constructor receives the task. Its public property makes task data available to the email template. `content()` chooses the template; it does not itself dispatch the email to a recipient. The complete generated class may contain additional methods beyond the focused fragment reproduced here.
+
+```html
+<x-mail::message>
+# Task Completed
+
+The task **{{ $task->title }}** was marked complete.
+
+<x-mail::button :url="route('tasks.show', $task)">
+View Task
+</x-mail::button>
+</x-mail::message>
+```
+
+The mail component provides message structure. The button points to the task’s show route. That destination must still enforce login and task access; receiving a link does not authorize the recipient by itself. `php artisan vendor:publish --tag=laravel-mail` is the module’s optional command for publishing mail views for customization, not a required step just to generate a mailable.
+
+<figure><img src="slides/m8/029.webp" width="1600" height="900" loading="lazy" alt="Original Module 8 page 29 Markdown email Blade view with task title and a View Task button."><figcaption>Figure 11. Original email template, M8 p. 29. The email is another Blade view; the controller still decides when to send it.</figcaption></figure>
+
+### 8.6 Send after success, and trigger on the transition
+<p class="page-range">PDF pages 30–35 · Sending, completed workflow, notification design, and recap</p>
+
+```php
+use App\Mail\TaskCompletedMail;
+use Illuminate\Support\Facades\Mail;
+
+// $validated comes from the intended update rules.
+// The task has already passed its access check.
+$task->update($validated);
+
+if ($task->wasChanged('status') && $task->status === 'done') {
+    Mail::to($request->user()->email)
+        ->send(new TaskCompletedMail($task));
+}
+return back()->with('status', 'Status updated');
+```
+
+This combines the update/send example with the safer trigger shown on p. 33. `Mail::to(...)` selects the recipient; `send(...)` dispatches the constructed mailable. The `with('status', ...)` value is a short redirect message for the next page, not the database task status field.
+
+`$task->status === 'done'` alone asks whether the task is currently complete. It would also be true on a later title-only edit. `wasChanged('status')` asks whether that attribute changed in the just-saved model operation. Together, the checks target **a change to done**, avoiding routine resends when an already-complete task is edited without another status transition.
+
+<aside class="notes-important"><strong>Make the status update possible</strong><p><mark>If this action changes <code>status</code>, its validated data, model fillable configuration, form, and schema must support <code>status</code>.</mark> A title-only validation example does not make a status transition happen. A rule such as <code>in:pending,done</code> is an illustrative application rule for the two states used by the course.</p></aside>
+
+The sample assumes a successful model save. A full application also handles save/mail failures. The condition is not an exactly-once delivery guarantee under retries or concurrent requests, and a later genuine transition back to done can legitimately trigger another email. The course’s practical lesson is to send **after the successful change**, keep sensitive data out of mail, and test with safe settings.
+
+**M8 recap:** resource routes organize seven actions; validation and Eloquent implement the writes; middleware requires login; relationships scope user records; ownership checks protect individual actions; SMTP config enables mail transport; a mailable chooses content; and a guarded post-update trigger decides when to send. This covers the module’s CRUD, authentication, and email objectives through its final recap and Q&A.
+
+
+### 8.7 Additional resource, ownership, and email connections
+<p class="page-range">PDF pages 7–34 · Generated files and complete update prerequisites</p>
+
+The resource-controller generator supplies method names, not completed methods. Register the resource route before running `php artisan route:list --name=tasks`. Do not register the same resource once outside the authentication group and again inside it.
+
+The owner relationship requires a real `user_id` column and the `User::tasks()` method. Creating through `$request->user()->tasks()->create($validated)` assigns the relationship's owner. A general `Task::latest()->get()` query does not apply that relationship automatically.
+
+These connected methods preserve the source's user-owned create and list examples:
+
+```php
+public function store(Request $request)
+{
+    $validated = $request->validate([
+        'title' => ['required', 'string', 'max:100'],
+    ]);
+    $request->user()->tasks()->create($validated);
+    return redirect()->route('tasks.index');
+}
+
+public function index(Request $request)
+{
+    $tasks = $request->user()->tasks()->latest()->get();
+    return view('tasks.index', compact('tasks'));
+}
+```
+
+`compact('tasks')` creates the view-data array from the existing `$tasks` variable. It does not retrieve the records again.
+
+The completion-email example requires a status update. These illustrative validation rules match the two statuses used throughout the PDFs:
+
+```php
+$validated = $request->validate([
+    'title' => ['required', 'string', 'max:100'],
+    'status' => ['required', 'in:pending,done'],
+]);
+```
+
+The form must submit `status`. The task model must permit the intended status write. Check access before saving. Check the save result before sending a success notification. A title-only form cannot demonstrate a change to `done` by itself.
+
+The generated email files have distinct responsibilities:
+
+| File | Responsibility |
+| --- | --- |
+| `app/Mail/TaskCompletedMail.php` | Receive the task and select the email content |
+| `resources/views/mail/tasks/completed.blade.php` | Render the email message and task link |
+| `.env` | Supply the mail transport and sender settings |
+| Task controller update action | Decide whether the completed change triggers the email |
+
+The mailable constructor's `public Task $task` combines a constructor parameter and a public property. The content method returns `new Content(markdown: 'mail.tasks.completed')`. The dots identify the nested email view. They do not identify a filesystem path passed to the mail server.
+
+`MAIL_MAILER=smtp` selects SMTP transport. `MAIL_HOST`, `MAIL_PORT`, `MAIL_USERNAME`, and `MAIL_PASSWORD` describe that connection. `MAIL_FROM_ADDRESS` and `MAIL_FROM_NAME` identify the sender. The recipient comes from `Mail::to($request->user()->email)` in the controller, not from the sender configuration.
+
+The email's task link uses `route('tasks.show', $task)`. The named route must exist. The application URL must identify the intended application. The destination must still check authentication and task access.
+
+The controller's `return back()->with('status', 'Status updated')` creates redirect feedback. That session message is separate from `$task->status`. <mark>The same word can name different values; read the owning object and method.</mark>
+
+The source's final checklist adds four operational checks: avoid duplicate resource routes, scope private records, keep SMTP secrets out of screenshots, and send mail after the update succeeds. These checks belong to the complete workflow, not only its demonstration screen.

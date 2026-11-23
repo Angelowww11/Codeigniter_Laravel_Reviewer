@@ -1,0 +1,215 @@
+### 4.1 Sessions give separate requests continuity
+<p class="page-range">PDF pages 1–9 · Objectives, session data, and removal</p>
+
+HTTP requests are separate exchanges. A **session** lets the server associate small pieces of state with the same visitor across requests. The browser commonly sends a session cookie identifying the relevant server-side session data. The cookie is not a reason to store the user’s password in session data.
+
+```php
+session()->set('username', 'admin');
+$name = session()->get('username');
+$sameName = session('username');
+
+session()->remove('username'); // One key
+session()->destroy();          // End the whole session
+```
+
+Use the CodeIgniter session service/helper; the course does not manually call PHP’s `session_start()`. `set()` remembers a value, `get()` reads it, and `remove()` removes a particular key. Destroying the session ends the whole login state rather than removing one value and accidentally leaving others behind.
+
+| Appropriate small values | Values the module says to avoid |
+| --- | --- |
+| User ID, username, login-state flag | Plaintext password or stored password hash as a login credential |
+| A short redirect message | Whole user tables or large record collections |
+
+<mark>A session remembers state, not permission by itself.</mark> Application code must check the relevant state before allowing a protected action. Session lifetime also depends on configuration and expiration; “lasts the visit” is a teaching shorthand, not a guaranteed duration for every setup.
+
+### 4.2 Flash data is for the next request
+<p class="page-range">PDF pages 10–15 · Redirect messages and session habits</p>
+
+**Flash data** is session data intended to survive into the next request and then expire. It fits the save–redirect–display pattern because the message is set before the redirect and shown on the destination page.
+
+```php
+// After a successful task insert:
+session()->setFlashdata('message', 'Task added successfully!');
+return redirect()->to('/tasks');
+```
+
+```php
+<!-- In the destination view -->
+<?php if ($message = session()->getFlashdata('message')): ?>
+    <p class="success"><?= esc($message) ?></p>
+<?php endif; ?>
+```
+
+The key `message` must match on both sides. Set the message **before returning** the redirect; code after a return is not reached. The `esc()` call makes output handling explicit in this rewritten view.
+
+<aside class="notes-clarify"><strong>Not “deleted because it was read”</strong><p>The next-request lifecycle is the important rule. Reading flash data is not the same as immediately deleting it on that read. The <a href="https://codeigniter4.github.io/userguide/libraries/sessions.html#flashdata" target="_blank" rel="noopener">CodeIgniter session documentation</a> describes its request-based availability.</p></aside>
+
+**Example:** POST creates a task and sets `message`; GET `/tasks` after the redirect displays it. A later ordinary refresh should not keep reporting that a new task was just created. A persistent `set()` value would be the wrong tool for a message meant to disappear.
+
+### 4.3 Password storage and authentication
+<p class="page-range">PDF pages 16–20 · User records, hashing, and demo setup</p>
+
+**Authentication** checks who the visitor is. The course’s minimal login looks up a user by username and verifies the typed password against a stored password hash. A **users** table therefore needs an ID, a unique username, and a password-hash column, illustrated as `VARCHAR(255)`.
+
+```php
+$hash = password_hash($plainPassword, PASSWORD_DEFAULT);
+// Persist $hash in users.password, never $plainPassword.
+```
+
+`password_hash()` creates a password hash suitable for storage. `PASSWORD_DEFAULT` selects PHP’s default password-hashing algorithm. It is not encryption that the application later decrypts. Verification checks a candidate password against that hash.
+
+```php
+// app/Models/UserModel.php
+<?php
+namespace App\Models;
+use CodeIgniter\Model;
+
+class UserModel extends Model
+{
+    protected $table = 'users';
+    protected $allowedFields = ['username', 'password'];
+}
+```
+
+The slides create one hashed test account so the login query has a real row to find. The displayed demo credentials are classroom examples, not values to reuse in a real deployment. A model definition alone does not create the table or the account.
+
+<aside class="notes-important"><strong>Hash and verify are a pair</strong><p><mark>Store with <code>password_hash()</code>; check with <code>password_verify()</code>.</mark> Do not compare the typed password directly with the stored hash using <code>==</code> or <code>===</code>, and do not re-hash the typed value and compare hash strings.</p></aside>
+
+### 4.4 Trace the login controller from input to session
+<p class="page-range">PDF pages 21–25 and 32 · Form, lookup, verification, and success</p>
+
+The login form submits `username` and `password` to the login POST route, includes `csrf_field()`, and uses a password input to obscure the on-screen characters. An HTML password field does not hash the stored password or replace secure transport.
+
+The controller needs to read **both** submitted variables before using the verification fragment. This combined teaching example supplies the password assignment that is implicit in the slides:
+
+```php
+// In the Auth controller; import App\Models\UserModel.
+$username = $this->request->getPost('username');
+$password = $this->request->getPost('password');
+
+// Validate required field types/presence before this lookup.
+$model = new UserModel();
+$user = $model->where('username', $username)->first();
+
+if (! $user || ! password_verify($password, $user['password'])) {
+    session()->setFlashdata('error', 'Invalid login.');
+    return redirect()->back()->withInput();
+}
+
+// Explicit safety addition after establishing a new login:
+session()->regenerate(true);
+session()->set([
+    'isLoggedIn' => true,
+    'user_id' => $user['id'],
+    'username' => $user['username'],
+]);
+return redirect()->to('/tasks');
+```
+
+The first condition rejects an absent user before attempting to read their stored hash. The failure message is generic. The success branch remembers only the small values needed for subsequent requests. The session-ID regeneration line is labeled as an addition; it is not printed in the PDF’s short successful-login snippet.
+
+**Read this in order:** validate input → find username → verify password → establish session state → redirect. The protected task page is reached by a **new request**, which is why the login state must persist in the session.
+
+### 4.5 Filters centralize protected-route checks
+<p class="page-range">PDF pages 27–31 · before(), after(), alias, and route attachment</p>
+
+A **filter** can run before controller logic. The authentication filter checks whether the login flag exists and is true. If the visitor is a guest, it returns a redirect to `/login` before allowing the task action to run. Repeating this check manually in every action is harder to maintain and easier to forget.
+
+```php
+// app/Filters/AuthFilter.php
+<?php
+namespace App\Filters;
+
+use CodeIgniter\Filters\FilterInterface;
+use CodeIgniter\HTTP\RequestInterface;
+use CodeIgniter\HTTP\ResponseInterface;
+
+class AuthFilter implements FilterInterface
+{
+    public function before(RequestInterface $request, $arguments = null)
+    {
+        if (! session()->get('isLoggedIn')) {
+            return redirect()->to('/login');
+        }
+    }
+
+    public function after(RequestInterface $request,
+        ResponseInterface $response, $arguments = null) {}
+}
+```
+
+`before()` is the pre-controller gate. `after()` is the corresponding post-controller hook; this simple filter does not need to change the response there. Register the alias in `app/Config/Filters.php` by **adding it to the existing aliases**, rather than accidentally replacing other framework aliases:
+
+```php
+'auth' => \App\Filters\AuthFilter::class,
+```
+
+Then attach it to a protected route:
+
+```php
+$routes->get('/tasks', 'Tasks::index', ['filter' => 'auth']);
+```
+
+<figure class="notes-flow"><ol><li><b>Request</b><span>GET /tasks</span></li><li><b>Auth filter</b><span>Check login state</span></li><li><b>Logged in</b><span>Run controller</span></li><li><b>Guest</b><span>Redirect to login instead</span></li></ol><figcaption>Figure 6. The last two boxes are alternative outcomes, not sequential actions. Based on M4, pp. 27–31.</figcaption></figure>
+
+<aside class="notes-important"><strong>Protect actions, not just page links</strong><p><mark>Every route requiring login needs the check, including write routes.</mark> Hiding an Edit or Delete control does not prevent a direct HTTP request. Authentication answers “logged in?”; role and record-ownership permissions need additional checks.</p></aside>
+
+### 4.6 Logout and the access-control check
+<p class="page-range">PDF page 26 and pages 33–36 · Logout, manual check, and recap</p>
+
+```php
+public function logout()
+{
+    session()->destroy();
+    return redirect()->to('/login');
+}
+```
+
+The slide registers GET `/logout` for its classroom demonstration. Distinguish that printed example from a hardened state-changing workflow, which should use an appropriate non-GET route with CSRF protection. The important course session operation is `destroy()`; removing only `username` while leaving `isLoggedIn` would not correctly end the login state.
+
+**Manual check from the module:** log out → request `/tasks` directly → verify redirection to login → log in → request `/tasks` again. Repeat relevant checks for write actions instead of assuming protecting the list page protects every endpoint.
+
+**M4 recap:** sessions provide continuity; flash data carries short-lived messages; hashes protect stored passwords; verification establishes identity; filters gate protected routes; logout destroys the login session. The objectives and final recap/Q&A combine these same responsibilities rather than introducing another authentication API.
+
+
+### 4.7 Additional login and session connections
+<p class="page-range">PDF pages 8–35 · Login form, demo record, and route registration</p>
+
+The login form belongs in `app/Views/auth/login.php`. The following form completes the controller example's input names:
+
+```php
+<form method="post" action="<?= site_url('login') ?>">
+    <?= csrf_field() ?>
+    <label>Username <input name="username"></label>
+    <label>Password <input type="password" name="password"></label>
+    <button type="submit">Log In</button>
+</form>
+```
+
+The form requires a GET action to display it and a POST action to receive it. Register the corresponding methods in `app/Config/Routes.php`. This connecting example supplies the routes that the separate form and controller fragments assume:
+
+```php
+$routes->get('/login', 'Auth::loginForm');
+$routes->post('/login', 'Auth::login');
+```
+
+Here, `loginForm()` returns `view('auth/login')`. `login()` reads and validates the submitted credentials. These method names are explanatory connections, not additional verbatim slide code.
+
+The PDF's demonstration account uses username `admin` and typed password `secret123`. Its stored password is a hash:
+
+```php
+$model = new \App\Models\UserModel();
+$model->insert([
+    'username' => 'admin',
+    'password' => password_hash('secret123', PASSWORD_DEFAULT),
+]);
+```
+
+Run account setup deliberately. Do not insert the demonstration account during every login request. A unique username column rejects duplicate usernames. Use the printed credentials only to understand the classroom example.
+
+The authentication filter class belongs in `app/Filters/AuthFilter.php`. Its namespace is `App\Filters`. Register its alias in `app/Config/Filters.php`, then attach that alias to protected routes. These three connections are separate requirements: class, alias, and route attachment.
+
+The filter's `before()` method can return a redirect before the controller runs. Its `after()` method receives the request and response after controller processing. The example leaves `after()` empty because it needs only the earlier access check.
+
+The success message example belongs in `app/Views/tasks/index.php`. Match its flash-data key to the controller's key. Match every login-state check to the exact session key `isLoggedIn`. A different spelling creates a different key.
+
+<mark>Authentication is a complete request sequence.</mark> The login POST establishes session state. The redirect causes another request. The protected route's filter reads that saved state. Logout destroys it before the next protected request.

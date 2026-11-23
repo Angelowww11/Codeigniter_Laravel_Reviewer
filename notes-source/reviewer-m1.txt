@@ -1,0 +1,189 @@
+### 1.1 The browser, server, and framework
+<p class="page-range">PDF pages 1–9 · Course introduction, objectives, and request–response</p>
+
+A **web application** lets a user work through a browser while application code runs on a server. In this course, PHP is the server-side language. The browser sends an HTTP request, such as `GET /about`. The server runs the matching code and sends a response, often HTML. The browser displays that response; it does not execute the server’s PHP source.
+
+The word **request** means the incoming message asking the application to do something. The **response** is what the server sends back. A URL identifies the destination, while the HTTP method helps express the action. Merely typing a URL into the address bar normally makes a GET request.
+
+<figure class="notes-flow"><ol><li><b>Browser</b><span>GET /about</span></li><li><b>Server / PHP</b><span>Run application code</span></li><li><b>Response</b><span>Return HTML</span></li><li><b>Browser</b><span>Display the page</span></li></ol><figcaption>Figure 1. Request and response are different messages. The PHP work happens between them. Redrawn from M1, pp. 6–7.</figcaption></figure>
+
+A **framework** supplies structure and reusable tools for tasks that repeat across web applications: routing, database access, validation, security features, and organizing files. Without shared structure, a developer can end up repeating setup and mixing SQL, validation, and HTML in every page. Framework conventions give those responsibilities predictable locations.
+
+<aside class="notes-important"><strong>Take note</strong><p><mark>The framework supplies tools; the developer still writes the application’s rules.</mark> Built-in security tools help only when the application uses and configures them correctly.</p></aside>
+
+### 1.2 MVC: know who owns each job
+<p class="page-range">PDF pages 10–18 · Responsibilities and request flow</p>
+
+**MVC** stands for Model–View–Controller. It separates responsibilities so that a change to the interface does not require rewriting the data-access layer. These are cooperating parts of an application, not three unrelated definitions to memorize.
+
+| Part | Main responsibility | CodeIgniter location | Task-manager example |
+| --- | --- | --- | --- |
+| Model | Data access and related data/business rules | `app/Models` | Retrieve pending tasks |
+| View | Presentation of supplied data | `app/Views` | Print a task list as HTML |
+| Controller | Coordinate the request and response | `app/Controllers` | Ask for tasks, then choose a view |
+
+For a task-list request, the route selects a controller method. The controller calls a model, receives the records, and passes them to a view. The rendered HTML becomes the response. In the course’s MVC arrangement, the model does not build the page layout and the view does not query the database.
+
+**Example:** changing the color and layout of a task list is a view change. Filtering the query to return only pending tasks is data-access work. Choosing which records and template to use for a request is controller coordination.
+
+Separation supports maintenance, teamwork, testing, and reuse. The same data layer can support multiple presentations. This does not mean every feature requires a database call: an About page can use a route, controller, and view without needing a model.
+
+<figure><img src="slides/m1/015.webp" width="1600" height="900" loading="lazy" alt="Original Module 1 page 15 diagram showing the browser, controller, model, view, and returned page."><figcaption>Figure 2. Original MVC request-flow diagram, M1 p. 15. Read the numbered arrows in order; the controller coordinates the data and presentation.</figcaption></figure>
+
+**Memory cue:** Model = data; View = display; Controller = coordinator. CodeIgniter 4 is the PHP MVC framework used in the first four modules. The course introduces it as lightweight and beginner-friendly; the responsibility split matters more than promotional descriptions of a framework.
+
+### 1.3 Installation, folders, and local configuration
+<p class="page-range">PDF pages 19–32 · Setup and environment settings</p>
+
+The module lists PHP 8.1 or newer, Composer, an editor, and a local PHP/MySQL setup such as XAMPP. Treat the stated PHP version as the PDF’s classroom requirement; an actual framework release may require a different minimum. Composer manages PHP packages. Install it on the machine, then check it with `composer --version`.
+
+```sh
+composer create-project codeigniter4/appstarter myproject
+cd myproject
+php spark serve
+```
+
+`create-project` downloads the starter into `myproject`. Run the remaining commands **inside that project directory**. **Spark** is CodeIgniter’s command-line tool. `php spark serve` starts its development server, usually at `http://localhost:8080`. The PHP executable still has to exist; this command simply avoids needing a separate Apache server for that local workflow.
+
+The slides also show downloading the framework ZIP and running Apache through XAMPP. These are alternative setup paths, not commands to run simultaneously. Under the illustrated XAMPP arrangement, a classroom URL may include `/your-folder/public`. Keep the public-directory distinction clear when comparing it with Spark’s URL.
+
+| Folder or file | What belongs there |
+| --- | --- |
+| `app/Controllers` | Request-handling controller classes |
+| `app/Models` | Data-access model classes |
+| `app/Views` | HTML/PHP templates |
+| `app/Config` | Application settings, including `Routes.php` |
+| `public/` | Web entry point and publicly served assets |
+| `writable/` | Logs, cache, and other generated writable data |
+| `vendor/` | Composer-managed packages in a Composer installation |
+| `.env` | Environment-specific local settings |
+
+The manual download and Composer layouts can differ. The slide’s reference to `system/` versus `vendor/` describes those distribution layouts; it does not change where your controllers, models, and views belong.
+
+<aside class="notes-important"><strong>Public means publicly reachable</strong><p><mark>The web server should point at <code>public/</code>.</mark> Application source, dependencies, credentials, and writable internal data should not become downloadable just because the project folder is on the server.</p></aside>
+
+The provided `env` template is renamed/copied to `.env` for local configuration. The following completes the missing closing quote visible in the PDF’s example:
+
+```ini
+CI_ENVIRONMENT = development
+app.baseURL = 'http://localhost:8080/'
+```
+
+`CI_ENVIRONMENT` selects environment behavior. `app.baseURL` is the application’s base address; <mark>keep its trailing slash</mark>. Match it to the server you actually use. `app/Config/App.php` provides application configuration too; `.env` can supply the local value. The PDF also sets `$indexPage = ''` to omit `index.php` from generated URLs. That setting alone does not configure Apache rewriting.
+
+### 1.4 URLs, explicit routes, and captured values
+<p class="page-range">PDF pages 33–38 · URL terminology and route patterns</p>
+
+For `https://www.example.com/blog/news/2022/10?page=2`, separate the base address, path, and query string. The route path is considered relative to the application’s base. `page=2` is query data, not another slash-separated path segment.
+
+An explicit CodeIgniter route combines **HTTP method + path pattern + handler**. Routes belong in `app/Config/Routes.php`.
+
+```php
+$routes->get('/about', 'Pages::about');
+$routes->get('/profile/(:num)', 'Pages::profile/$1');
+```
+
+The first route answers GET `/about` by running `about()` in `Pages`. In the second, the numeric URL component is captured and passed as the first argument. Visiting `/profile/123` supplies `123` to `profile($id)`. `$1` means the **first captured placeholder**, not a fixed literal user ID.
+
+| Placeholder | What to recognize |
+| --- | --- |
+| `(:num)` | Numeric route component, used for an ID in these examples |
+| `(:segment)` | One component; cannot include `/` |
+| `(:any)` | The remaining path; may span multiple components |
+| `(:alpha)` | Alphabetic characters |
+| `(:alphanum)` | Alphabetic and numeric characters |
+| `(:hash)` | Same matching behavior as `(:segment)`, but communicates intent |
+
+**Do not mix two routing explanations.** The PDF’s `/blog/post/20261231` segment illustration helps label controller/action/argument-style URLs. With an explicit route, however, the handler is whatever the route declares; a URL does not have to use the controller’s class name. A captured ID is also not proof that the record exists or that the visitor may access it.
+
+### 1.5 Controllers, index(), and clean URLs
+<p class="page-range">PDF pages 39–44 · Class structure and URL handling</p>
+
+```php
+<?php
+namespace App\Controllers;
+
+class Pages extends BaseController
+{
+    public function about()
+    {
+        return 'This is the about page.';
+    }
+}
+```
+
+Save this class as `app/Controllers/Pages.php`. The namespace places it in the application’s controller namespace. `extends BaseController` inherits the project’s base controller behavior. A public method is an action that an appropriate route can target. Returning text creates a simple response; later, returning a view creates an HTML page.
+
+<aside class="notes-clarify"><strong>Clarification: index is not an automatic first step</strong><p>M1 p. 42 calls <code>index()</code> the first function to execute. More precisely, it is a conventional/default action when routing selects it. An explicit <code>Pages::about</code> route calls <code>about()</code> directly; it does not run <code>index()</code> first. See the <a href="https://codeigniter4.github.io/userguide/incoming/routing.html#default-method" target="_blank" rel="noopener">official default-method explanation</a>.</p></aside>
+
+To map the root URL explicitly, use `$routes->get('/', 'Pages::index');`. The method name alone does not register that URL.
+
+The clean-URL slides discuss removing `public/index.php/` from a classroom URL. Their alternatives include moving `index.php`/`.htaccess`, which the PDF discourages for hosted applications, and a root rewrite into `public/`. The underlying distinction is between **the server’s document root**, **rewrite behavior**, and **generated URL settings**. Prefer the intended `public/` document root; do not treat relocating files as a universally safe deployment recipe. The supplied Apache `.htaccess` examples depend on Apache and rewrite support.
+
+### 1.6 Views and controller-to-view data
+<p class="page-range">PDF pages 45–54 · Rendering, data, organization, and recap</p>
+
+Create `app/Views/about.php`, then render it with `return view('about');`. The view name omits `.php`. `view()` renders a template; it is not a redirect to another URL.
+
+```php
+// In Pages::about()
+$data = ['title' => 'Sample Page', 'name' => 'Pages'];
+return view('about', $data);
+```
+
+```php
+<!-- app/Views/about.php -->
+<h1><?= esc($title) ?></h1>
+<p>About <?= esc($name) ?></p>
+```
+
+The array key `name` becomes `$name` in the view. The controller could obtain that value from an array, a database, or another service; the view only needs the supplied value. The `esc()` calls are an explicit safe-output addition to the PDF’s very short dynamic-data example.
+
+**Subdirectories:** `view('directory-name/about')` looks under `app/Views/directory-name/about.php`.
+
+**Several templates in one response:** the course concatenates rendered views using the PHP dot operator:
+
+```php
+return view('header', $data)
+    . view('menu')
+    . view('main', $data)
+    . view('footer');
+```
+
+This produces one response made from several rendered pieces. Pass data to the templates that need it. The order controls the resulting page order.
+
+**Before leaving M1:** be able to trace route → controller → view → browser, identify each project folder, and explain why a view receives data rather than fetching it. A missing namespace, wrong view name, unmatched HTTP method, or stale browser output can make correct-looking code appear broken. The final pages recap these mistakes and provide a Q&A prompt; they add no separate API.
+
+
+### 1.7 Additional setup and URL details
+<p class="page-range">PDF pages 20–44 · Installation alternatives and configuration examples</p>
+
+**Check the installation tools separately.** Composer installs PHP packages. XAMPP supplies a local server stack. Spark starts the CodeIgniter development server. VS Code edits the application files. The Composer version displayed in the slide is example output, not a required version for every project.
+
+The slide gives two local addresses: `http://localhost:8080` for Spark and `http://localhost/your-folder-name/public` for the illustrated XAMPP arrangement. Start Apache in XAMPP when you use the Apache arrangement. Start MySQL when the application needs the database.
+
+The application can also obtain its base address from `app/Config/App.php`. The slide shows these configuration properties:
+
+```php
+public $baseURL = 'http://localhost/your-folder-name/';
+public $indexPage = '';
+```
+
+These are the PDF's property examples. Preserve the property types required by the generated configuration class in your installed version. <mark>The base URL, document root, and rewrite rules are separate settings.</mark>
+
+**Read the URL relative to the application.** For `https://www.example.com/blog/news/2022/10?page=2`, a base URL of `https://www.example.com/blog/` leaves `news/2022/10` as the application-relative path. The query remains `page=2`. A subfolder in the base URL changes the relative route path.
+
+The URL-cleaning slide includes this root-directory `.htaccess` example:
+
+```apache
+<IfModule mod_rewrite.c>
+    RewriteEngine On
+    RewriteRule ^(.*)$ public/$1 [L]
+</IfModule>
+```
+
+This is the PDF's Apache-specific alternative. `RewriteEngine On` enables rewriting. The rule forwards the captured path into `public/`. `[L]` stops processing further rules in that pass. The application's `public/.htaccess` handles its own front-controller rewriting. These files require an Apache configuration that permits the relevant overrides.
+
+The other printed alternative moves `index.php` and `.htaccess` from `public/` into the project root. It changes the path reference from `../app/Config/Paths.php` to `app/Config/Paths.php`. The PDF does not recommend this alternative for hosted applications. Keep the normal `public/` document root when you control the server configuration.
+
+**Check the complete route match.** A route requires the correct HTTP method and path. A public controller method does not register its own explicit route. `(:any)` can capture multiple path components, while `(:segment)` captures one. `(:hash)` communicates the intended identifier type but does not hash, decode, or validate an identifier's ownership.

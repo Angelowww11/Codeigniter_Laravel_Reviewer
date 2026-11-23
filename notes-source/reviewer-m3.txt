@@ -1,0 +1,232 @@
+### 3.1 The complete form workflow
+<p class="page-range">PDF pages 1–9 · Objectives, request methods, CSRF, and submitted values</p>
+
+A form is the interface for collecting data; it is not proof that the data is correct. A visitor can send blank values, unexpected field names, or a request constructed without your page. <mark>Validate on the server before writing the record.</mark> Browser-side checks alone are not the controller’s validation.
+
+The course uses two routes for adding a task:
+
+```php
+$routes->get('/tasks/new', 'Tasks::new');
+$routes->post('/tasks', 'Tasks::create');
+```
+
+GET displays the form. POST submits data to the create action. The same path can serve different purposes under different HTTP methods. Use `php spark routes` to inspect registered method/path/handler combinations before debugging a form that seems to go nowhere.
+
+```php
+<!-- app/Views/tasks/new.php -->
+<form method="post" action="<?= site_url('tasks') ?>">
+    <?= csrf_field() ?>
+    <label for="title">Title</label>
+    <input id="title" type="text" name="title"
+           value="<?= old('title') ?>">
+    <?= validation_show_error('title') ?>
+    <button type="submit">Add Task</button>
+</form>
+```
+
+`action` is the destination URL. `method` determines the request method. `name="title"` determines the submitted key, so the controller, validation rule, and error lookup must use `title` too. `site_url()` builds an application URL instead of assuming a fixed folder location. The controller reads the value through `$this->request->getPost('title')` rather than relying directly on `$_POST`.
+
+`csrf_field()` renders a hidden CSRF-token field. **CSRF** protection checks that a submitted token matches the expected request/session context. The hidden field must be paired with enabled framework CSRF protection; adding an input alone does not enforce a check. CSRF, input validation, authentication, and output escaping solve different problems.
+
+<figure class="notes-flow"><ol><li><b>GET form</b><span>Display fields</span></li><li><b>POST input</b><span>Send named values</span></li><li><b>Validate</b><span>Reject or accept</span></li><li><b>Save + redirect</b><span>Show updated records</span></li></ol><figcaption>Figure 4. Form lifecycle from M3, pp. 7–18. On failure, return to the form with old input and errors instead of saving.</figcaption></figure>
+
+### 3.2 Validation rules, errors, and old input
+<p class="page-range">PDF pages 10–15 · Validation gate and feedback</p>
+
+```php
+$rules = [
+    'title' => 'required|min_length[3]|max_length[150]',
+];
+
+if (! $this->validate($rules)) {
+    return redirect()->back()->withInput();
+}
+```
+
+The pipe separates rules for one field. A title must satisfy **all** listed rules. The failure branch returns early, so saving code after it runs only when validation passed. `withInput()` carries input and validation feedback through the redirect. In the form, `old('title')` restores the previous text and `validation_show_error('title')` displays the field’s error.
+
+| Course rule | Meaning to remember |
+| --- | --- |
+| `required` | A required value must be supplied |
+| `min_length[3]` | Minimum of three characters |
+| `max_length[150]` | Maximum of 150 characters |
+| `valid_email` | Validate the email-address format |
+| `numeric` | Check numeric input; do not use its name as a substitute for an exact integer-only requirement |
+| `is_unique[tasks.title]` | Check uniqueness against the specified table and column |
+
+**Example:** a two-character title fails `min_length[3]`. The user should return to the form, see the entered value, and learn what to correct. The controller should not insert the invalid row and then display an error afterward.
+
+<aside class="notes-clarify"><strong>Precision note: numeric is not the same as integer-only</strong><p>The slide abbreviates <code>numeric</code> as “digits only.” Choose a rule that matches the actual requirement; CodeIgniter separately lists <code>integer</code>, <code>is_natural</code>, and <code>is_natural_no_zero</code>. See the <a href="https://codeigniter4.github.io/userguide/libraries/validation.html#rules-for-general-use" target="_blank" rel="noopener">official rule reference</a>. Validation also does not replace output escaping or record-access checks.</p></aside>
+
+### 3.3 CRUD: four operations, one model
+<p class="page-range">PDF pages 16–23 · Insert, retrieve, update, and delete</p>
+
+**CRUD** means Create, Read, Update, and Delete. CodeIgniter’s task controller handles requests and calls `TaskModel` for the table operation. Do not put repeated SQL in a view.
+
+| Operation | Model method in these modules | Main effect |
+| --- | --- | --- |
+| Create | `$model->insert($data)` | Add a row |
+| Read many | `$model->findAll()` | Retrieve rows |
+| Read one | `$model->find($id)` | Retrieve a primary-key match |
+| Update | `$model->update($id, $data)` | Change the specified row |
+| Delete | `$model->delete($id)` | Delete the specified row under the model’s configured behavior |
+
+```php
+// In the Tasks controller; import App\Models\TaskModel.
+public function create()
+{
+    $rules = ['title' => 'required|min_length[3]|max_length[150]'];
+    if (! $this->validate($rules)) {
+        return redirect()->back()->withInput();
+    }
+    $model = new TaskModel();
+    $model->insert([
+        'title' => $this->request->getPost('title'),
+        'status' => 'pending',
+    ]);
+    return redirect()->to('/tasks');
+}
+```
+
+This rewritten create action combines the module’s validation and insert examples. Notice that the server sets `status` to `pending` rather than accepting an arbitrary posted status. Ensure the model allows the written fields and the table contains them. Handle persistence failures appropriately in a complete application; these teaching fragments focus on the normal workflow.
+
+**Editing has two stages:** first retrieve the selected task and show an edit view, then receive the edited submission, validate it, and update that task. Check for a missing record as in M2. The form can use:
+
+```php
+<input name="title" value="<?= old('title', $task['title']) ?>">
+```
+
+The first argument names the old submitted input. The second is the saved value used when old input is unavailable. **Old input takes priority over the database value after a failed submission.** It is not the new saved value, and calling `old()` does not update the database.
+
+After validation, the update fragment is `$model->update($id, ['title' => $this->request->getPost('title')]);`. Delete uses `$model->delete($id)`. The route supplies the ID; it should not accidentally update every task or a hard-coded unrelated record.
+
+<aside class="notes-important"><strong>Method matters</strong><p><mark>A normal link makes a GET request; do not use GET for destructive record actions.</mark> M3 demonstrates POST-based changes. Pair the route’s method with the form, include CSRF protection, and validate/authorize the selected action. Hiding a Delete link is not access control.</p></aside>
+
+### 3.4 File uploads are not ordinary text fields
+<p class="page-range">PDF pages 24–28 · Multipart form and file validation</p>
+
+```php
+<form method="post"
+      action="<?= site_url('tasks/' . $task['id'] . '/upload') ?>"
+      enctype="multipart/form-data">
+    <?= csrf_field() ?>
+    <input type="file" name="attachment">
+    <button type="submit">Upload</button>
+</form>
+```
+
+`enctype="multipart/form-data"` lets the browser send file content. Without it, adding a file input is not enough. The field name must match the controller lookup **and the name inside each file rule**:
+
+```php
+$rules = [
+    'attachment' => [
+        'rules' => [
+            'uploaded[attachment]',
+            'max_size[attachment,2048]',
+            'mime_in[attachment,image/jpeg,image/png]',
+        ],
+    ],
+];
+
+if (! $this->validateData([], $rules)) {
+    return redirect()->back()->withInput();
+}
+$file = $this->request->getFile('attachment');
+$newName = $file->getRandomName();
+```
+
+`uploaded` checks for the upload; it is not interchangeable with the text-field `required` shortcut. `max_size` limits the file to 2048 KB in this example. `mime_in` restricts the accepted MIME types. These checks occur **before** moving and saving the file. A file input generally must be chosen again after a failed submission; old text input does not restore the browser’s local file selection.
+
+### 3.5 Move, prepare, persist, and display the attachment
+<p class="page-range">PDF pages 29–36 · File location, image preparation, filename persistence, and recap</p>
+
+The module’s public-image workflow puts validated files in `public/uploads`. `FCPATH` refers to the directory containing the front controller, normally `public/` in this project layout. A server filesystem path and a browser URL are different things.
+
+```php
+$uploadPath = FCPATH . 'uploads';
+if (! is_dir($uploadPath)) {
+    mkdir($uploadPath, 0775, true);
+}
+$file->move($uploadPath, $newName);
+
+// Optional image preparation, as shown in the module:
+service('image')
+    ->withFile(FCPATH . 'uploads/' . $newName)
+    ->fit(300, 300, 'center')
+    ->save(FCPATH . 'uploads/' . $newName);
+
+$model = new TaskModel();
+$model->update($id, ['attachment' => $newName]);
+return redirect()->to('/tasks/' . $id);
+```
+
+`getRandomName()` avoids trusting a user-provided filename. `move()` places the uploaded bytes in the intended directory. `fit(300, 300, 'center')` prepares a square display image by fitting/cropping, rather than assuming every input already has that size. Image processing requires the appropriate image service/driver. Directory permissions and error handling depend on the environment.
+
+<aside class="notes-important"><strong>Prerequisite the short upload example assumes</strong><p><mark>Add the <code>attachment</code> column to the table and <code>attachment</code> to <code>TaskModel::$allowedFields</code>.</mark> Calling <code>update()</code> does not create the column or automatically allow that field. The record must already exist for this update-based example.</p></aside>
+
+```php
+<?php $url = base_url('uploads/' . $task['attachment']); ?>
+<img src="<?= esc($url, 'attr') ?>" alt="Task attachment">
+```
+
+The database stores the generated **filename**, not the file’s bytes or an absolute machine-specific path. `base_url()` builds the public URL. `esc($url, 'attr')` escapes that value for the HTML attribute context. Storing a file under `writable/` does not make a `base_url('uploads/...')` address magically serve it; storage location and public URL must correspond.
+
+<figure><img src="slides/m3/034.webp" width="1600" height="900" loading="lazy" alt="Original Module 3 page 34 safe upload checklist covering multipart forms, file rules, random names, storage, image preparation, and safe display."><figcaption>Figure 5. Original upload checklist, M3 p. 34. Read it as a complete workflow; the shorter code fragments omit earlier setup and validation.</figcaption></figure>
+
+**M3 recap:** correct form method and destination → token → matching field names → server validation → model operation → redirect. For files, also add multipart encoding, file-specific rules, generated names, deliberate storage, optional image preparation, and filename persistence. The opening learning outcomes and final Q&A cover these same three areas: forms, CRUD, and uploads.
+
+
+### 3.6 Additional form, update, and upload connections
+<p class="page-range">PDF pages 7–35 · File locations and connected operations</p>
+
+Keep the files in their correct locations:
+
+| File | Responsibility |
+| --- | --- |
+| `app/Config/Routes.php` | Register the form and submission routes |
+| `app/Controllers/Tasks.php` | Read requests, validate values, and call the model |
+| `app/Views/tasks/new.php` | Display the create form |
+| `app/Views/tasks/edit.php` | Display the existing record and old input |
+| `app/Views/tasks/upload.php` | Send the multipart attachment request |
+| `app/Views/tasks/show.php` | Display the record and attachment URL |
+
+The short update and delete examples assume that routes supply `$id`. This connected route example makes that assumption explicit. These route names extend the PDF's fragments:
+
+The edit action retrieves the row before it renders the form:
+
+```php
+$model = new TaskModel();
+$task = $model->find($id);
+if ($task === null) {
+    throw \CodeIgniter\Exceptions\PageNotFoundException::forPageNotFound();
+}
+return view('tasks/edit', ['task' => $task]);
+```
+
+The view receives `$task`. The route-registration example below connects the edit URL to its action:
+
+```php
+$routes->get('/tasks/(:num)/edit', 'Tasks::edit/$1');
+$routes->post('/tasks/(:num)/update', 'Tasks::update/$1');
+$routes->post('/tasks/(:num)/delete', 'Tasks::delete/$1');
+$routes->post('/tasks/(:num)/upload', 'Tasks::upload/$1');
+```
+
+Match each form action to the selected route. A form that posts to an update URL does not match a GET-only route. Place the literal `/tasks/new` route before broad parameter patterns when their patterns can overlap.
+
+Validate an update before calling the model. Load the selected record before displaying the edit form. Check the selected record and its access permissions before changing or deleting it. The short `$model->update()` and `$model->delete()` fragments do not perform all these controller checks automatically.
+
+The source uses `is_unique[tasks.title]` as a validation example. An update needs special care because the existing record already has its own title. A uniqueness rule must exclude the current record when that behavior is required. Do not apply the create rule unchanged and then reject an unchanged valid title.
+
+**Read the upload calls in order:**
+
+1. Read the uploaded object with `$this->request->getFile('attachment')`.
+2. Generate the filename with `$file->getRandomName()`.
+3. Move the file with `$file->move(FCPATH . 'uploads', $newName)`.
+4. Prepare the image when the display requires a fixed size.
+5. Save the generated filename through the model.
+6. Build the display URL with `base_url('uploads/' . $name)`.
+
+The `mkdir($uploadPath, 0775, true)` example creates missing parent directories recursively. The operating system and server configuration determine the effective permissions. A successful filename update does not prove that image processing or the file move succeeded. Handle those failures before reporting upload success.
+
+The final upload fragment omits its earlier validation branch. Read it together with the file rules and checklist. <mark>Do not copy the final fragment as permission to skip validation.</mark>

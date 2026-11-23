@@ -1,0 +1,197 @@
+### 5.1 Transfer the MVC idea, then learn the new file map
+<p class="page-range">PDF pages 1–9 · Objectives, installation, conventions, and structure</p>
+
+Laravel is another server-side PHP framework. The concept does not restart from zero: a route receives a request, a controller coordinates work, a model handles data, and a view presents the result. What changes is the framework’s conventions, syntax, and tooling. The module emphasizes looking for the **same responsibility in a different location**.
+
+```sh
+composer global require laravel/installer
+laravel new myproject
+cd myproject
+```
+
+Composer installs the Laravel installer as a global command-line tool. `laravel new` creates the project. The installer’s prompts and exact defaults can depend on the installed version, so these notes preserve the classroom workflow without claiming that every current installation looks identical.
+
+| Responsibility | CodeIgniter | Laravel |
+| --- | --- | --- |
+| Web routes | `app/Config/Routes.php` | `routes/web.php` |
+| Controllers | `app/Controllers` | `app/Http/Controllers` |
+| Models | `app/Models` | `app/Models` |
+| Templates | `app/Views` | `resources/views` |
+| Template form | PHP view, e.g. `about.php` | Blade view, e.g. `about.blade.php` |
+| Command-line tool | Spark | Artisan |
+| Public entry directory | `public/` | `public/` |
+| Writable application data | `writable/` in the CI layout | `storage/` in the Laravel layout |
+
+Other Laravel folders in the PDF include `bootstrap/`, `config/`, `database/`, and `vendor/`. `database/` contains schema and sample-data code developed in M6. `vendor/` contains Composer dependencies. Do not edit dependency files as a substitute for editing your application.
+
+<figure><img src="slides/m5/020.webp" width="1600" height="900" loading="lazy" alt="Original Module 5 page 20 comparison of CodeIgniter and Laravel routes, controllers, and view locations."><figcaption>Figure 7. Original framework-to-framework MVC map, M5 p. 20. The responsibilities transfer even though the paths and controller names change.</figcaption></figure>
+
+### 5.2 Environment settings, servers, and Artisan
+<p class="page-range">PDF pages 10–15 and 26 · Local settings, commands, and setup errors</p>
+
+```ini
+APP_NAME="Student Portal"
+APP_ENV=local
+APP_DEBUG=true
+APP_URL=http://localhost:8000
+DB_CONNECTION=sqlite
+```
+
+`.env` contains values that differ between environments. Configuration files under `config/` read environment values and expose application settings. `APP_URL` describes the application address; it does not start a server. `APP_DEBUG=true` is shown for local development, not as a setting to expose internal debug details publicly.
+
+```sh
+php artisan serve
+php artisan list
+php artisan route:list
+php artisan make:controller PageController
+```
+
+`serve` starts the simple local server, normally at port 8000. `list` shows available Artisan commands. `route:list` inspects registered routes. `make:controller` generates a controller in Laravel’s expected location. The PDF also mentions `composer run dev` for a project’s fuller development workflow; the tools it starts depend on that project’s script and frontend setup.
+
+**Troubleshooting:** “laravel not recognized” points toward the installer/Composer global bin PATH; “composer not recognized” points toward Composer installation or terminal PATH. A port-in-use error means another process is using that port. An error page should be read for the failing class, file, line, or configuration rather than dismissed as simply “Laravel not working.”
+
+<aside class="notes-important"><strong>Keep the command families separate</strong><p><mark><code>php spark ...</code> belongs to CodeIgniter. <code>php artisan ...</code> belongs to Laravel.</mark> Run project commands from the correct project directory.</p></aside>
+
+### 5.3 Three ways a route can produce a page
+<p class="page-range">PDF pages 16–23 · Direct responses, Route::view, and parameters</p>
+
+Laravel’s web routes belong in `routes/web.php`. Import the `Route` facade when writing the shown examples.
+
+```php
+use Illuminate\Support\Facades\Route;
+
+// 1. Direct response from a closure:
+Route::get('/about', function () {
+    return 'This is the about page.';
+});
+
+// 2. A view-only route instead of the closure above:
+// Route::view('/about', 'about');
+
+// 3. A view route with small data:
+// Route::view('/about', 'about', ['course' => 'IT0049']);
+```
+
+These are **alternatives** for explaining a route, not three duplicate `/about` registrations you should paste together. `Route::get` responds to GET. A closure can return a simple response directly. `Route::view` is convenient when a page needs a view and perhaps simple data, but not a separate controller action yet.
+
+```php
+Route::get('/tasks/{id}', function ($id) {
+    return 'Task ID: ' . $id;
+});
+```
+
+Visiting `/tasks/15` supplies `15` as the route parameter. `{id}` is a captured path value, not query-string syntax and not a database lookup by itself. The route shown here has no numeric constraint. Laravel’s braces and parameter style should not be confused with CodeIgniter’s `(:num)` and `$1` handler syntax.
+
+### 5.4 Controller classes and route connections
+<p class="page-range">PDF pages 24–28 · Generation, namespace, handler, and data</p>
+
+After `php artisan make:controller PageController`, the controller belongs in `app/Http/Controllers/PageController.php`:
+
+```php
+<?php
+namespace App\Http\Controllers;
+
+class PageController extends Controller
+{
+    public function about()
+    {
+        return view('about', [
+            'course' => 'Web System Technologies',
+            'module' => 'Laravel Foundations',
+        ]);
+    }
+}
+```
+
+Connect that method with a route:
+
+```php
+use App\Http\Controllers\PageController;
+Route::get('/about', [PageController::class, 'about']);
+```
+
+The route’s handler array names the controller class and method. Importing the class avoids Laravel looking for the wrong class name. The `view()` helper renders a template; its second argument is an associative array. Keys `course` and `module` become `$course` and `$module` in Blade.
+
+<mark>A controller prepares the response; it should not turn into the HTML template.</mark> The syntax changes from CodeIgniter, but this controller-to-view responsibility is familiar.
+
+### 5.5 Blade templates, escaping, and details pages
+<p class="page-range">PDF pages 29–34 · Page composition, parameters, output, and recap</p>
+
+```html
+<!-- resources/views/about.blade.php -->
+<!DOCTYPE html>
+<html lang="en">
+<head><title>About</title></head>
+<body>
+    <h1>{{ $course }}</h1>
+    <p>{{ $module }}</p>
+</body>
+</html>
+```
+
+Blade is Laravel’s template system. The `.blade.php` extension matters: putting the file in a controller folder or naming it `about.php` does not match the course’s Blade convention. `view('about')` resolves the view name under `resources/views` without writing the full filename in the controller.
+
+<aside class="notes-important"><strong>Normal output: double curly braces</strong><p><mark><code>{{ $value }}</code> escapes HTML output.</mark> <code>{!! $value !!}</code> is raw output and should not be used merely to display user-entered text. The raw-output line in the slide is an example of what to avoid for untrusted input.</p></aside>
+
+For a details demonstration, the route captures `{id}`, the controller builds an array, and the view prints it:
+
+```php
+// In routes/web.php:
+Route::get('/tasks/{id}', [PageController::class, 'task']);
+
+// Inside PageController:
+public function task($id)
+{
+    return view('task', ['id' => $id, 'title' => 'Buy groceries']);
+}
+```
+
+```html
+<!-- resources/views/task.blade.php -->
+<h1>{{ $title }}</h1>
+<p>Task ID: {{ $id }}</p>
+```
+
+Here the title is still fixed teaching data. The captured ID is displayed, but no task has been fetched from a database. M6 turns that visual example into a real data-backed details page.
+
+**M5 recap:** route → optional controller → view data → Blade → HTML response. Check file locations, imports, controller spelling, and the Blade filename if that chain breaks. The opening objectives and closing Q&A address setup, Artisan, routing, controllers, and templates; all are represented above.
+
+
+### 5.6 Additional Laravel file and command details
+<p class="page-range">PDF pages 7–33 · Folder map, routes, and local checks</p>
+
+The Laravel project map includes these separate locations:
+
+```text
+myproject/
+  app/Http/Controllers/
+  bootstrap/
+  config/
+  database/
+  public/
+  resources/views/
+  routes/web.php
+  storage/
+  vendor/
+```
+
+`bootstrap/` contains application-startup configuration. `config/` contains application configuration files. `storage/` holds writable application data. `public/` is the web entry point. These folders are not interchangeable destinations for a Blade view.
+
+The exact comparison on p. 20 pairs `app/Controllers/Pages.php` with `app/Http/Controllers/PageController.php`. It pairs `app/Views/about.php` with `resources/views/about.blade.php`. Both frameworks use a `view('about')` call in the examples, but they resolve that name through their own view locations.
+
+Use the route's full class reference when you connect it to a controller:
+
+```php
+use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\PageController;
+
+Route::get('/about', [PageController::class, 'about']);
+```
+
+`PageController::class` identifies the class. The string `'about'` identifies the action. This array does not name a Blade view. The action chooses the view separately.
+
+The example application address is `http://localhost:8000`; Artisan also prints `http://127.0.0.1:8000`. Both illustrated addresses refer to the local development server. A local virtual host such as `http://myproject.test` needs the matching local host/server configuration. Changing `APP_URL` alone does not create that virtual host.
+
+The controller's data example uses `$course = 'Web System Technologies'` and `$module = 'Laravel Foundations'`. The route-only view example uses `course => 'IT0049'`. These are separate demonstrations of the same array-key-to-view-variable mechanism.
+
+**Check the request path before the template.** Inspect `php artisan route:list`. Check the controller import and method name. Check `resources/views/about.blade.php`. Check the keys passed to `view()`. This order traces the request through the application instead of changing unrelated files.
