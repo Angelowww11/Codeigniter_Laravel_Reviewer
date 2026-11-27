@@ -1,6 +1,17 @@
 ### 6.1 Six pieces of the Laravel data layer
 <p class="page-range">PDF pages 1–8 · Objectives, database choice, and file responsibilities</p>
 
+#### Key terms — identify the job
+
+- **Migration** — A versioned schema change with forward and reverse operations.
+- **Seeder** — A class that inserts intended sample records when run.
+- **Eloquent model** — The class-based interface to records in a database table.
+- **Query builder** — A prepared query description before a terminal operation executes it.
+- **Collection** — A group of retrieved models, normally processed with a loop.
+- **Mass assignment** — Writing an array of attributes through operations such as create().
+- **Fillable fields** — The model’s permitted attributes for the taught mass-assignment pattern.
+- **Not-found handling** — The failure path when a selected row is absent, such as findOrFail().
+
 Laravel separates connection settings, table structure, sample rows, record access, request handling, and display. Keeping those jobs distinct makes database problems much easier to locate.
 
 | Job | Where the course puts it | What it does not do |
@@ -12,9 +23,15 @@ Laravel separates connection settings, table structure, sample rows, record acce
 | Request coordination | `app/Http/Controllers` | Does not belong inside Blade |
 | Presentation | `resources/views` | Should not fetch its own database records |
 
-The module starts with SQLite, which stores the local database in one file, and notes that MySQL can be used by changing connection settings. For SQLite, the driver is `DB_CONNECTION=sqlite`; where an explicit database path is configured, it must point to the actual file. MySQL instead needs the corresponding host, database name, and credentials.
+The module starts with SQLite, which stores the local database in one file, and notes that MySQL can be used by changing connection settings.
 
-The printed `type nul > database\database.sqlite` is a **Windows Command Prompt** file-creation example, not a Laravel API or a command that works identically in every shell. The conceptual steps are to ensure the configured SQLite file exists and then run migrations. Do not accidentally truncate an existing database while following a setup example.
+- For SQLite, the driver is `DB_CONNECTION=sqlite`; where an explicit database path is configured, it must point to the actual file.
+- MySQL instead needs the corresponding host, database name, and credentials.
+
+The printed `type nul > database\database.sqlite` is a **Windows Command Prompt** file-creation example, not a Laravel API or a command that works identically in every shell.
+
+- The conceptual steps are to ensure the configured SQLite file exists and then run migrations.
+- Do not accidentally truncate an existing database while following a setup example.
 
 ### 6.2 Migrations describe schema changes
 <p class="page-range">PDF pages 9–12 · Columns, migration execution, and rollback</p>
@@ -38,7 +55,10 @@ Schema::create('tasks', function (Blueprint $table) {
 });
 ```
 
-`id()` creates the conventional ID column. `string('title', 150)` gives the column its length. `default('pending')` supplies a default status. `timestamps()` adds **both `created_at` and `updated_at`**, matching Eloquent’s usual timestamp behavior. Other illustrated column choices include nullable text for notes and a boolean `is_active` with a false default.
+`id()` creates the conventional ID column.
+
+- `string('title', 150)` gives the column its length. `default('pending')` supplies a default status. `timestamps()` adds **both `created_at` and `updated_at`**, matching Eloquent’s usual timestamp behavior.
+- Other illustrated column choices include nullable text for notes and a boolean `is_active` with a false default.
 
 | Command | Effect to recognize |
 | --- | --- |
@@ -67,7 +87,10 @@ Task::create(['title' => 'Submit report', 'status' => 'pending']);
 Task::create(['title' => 'Fix login bug', 'status' => 'done']);
 ```
 
-This completes the three sample rows used by the later list screens; the PDF’s p. 14 code is visually cut off near the third insertion. The `Task` model, table, and allowed mass-assignment fields must exist before this example runs. Re-running a simple insert-only seeder can create duplicates; a seeder is not automatically a synchronization script.
+This completes the three sample rows used by the later list screens; the PDF’s p. 14 code is visually cut off near the third insertion.
+
+- The `Task` model, table, and allowed mass-assignment fields must exist before this example runs.
+- Re-running a simple insert-only seeder can create duplicates; a seeder is not automatically a synchronization script.
 
 ### 6.4 Eloquent models and mass assignment
 <p class="page-range">PDF pages 16–20 · ORM, Task model, and fillable fields</p>
@@ -133,7 +156,10 @@ Read the chain as **condition → order → execute retrieval**. `get()` retriev
 </ul>
 ```
 
-`$tasks` is the collection; `$task` is one model object, so attributes use `->title` and `->status`. Contrast that with the CodeIgniter array example’s `$task['title']`. Blade’s loop and condition control presentation; they do not move database queries into the template. `{{ }}` escapes the displayed values.
+`$tasks` is the collection; `$task` is one model object, so attributes use `->title` and `->status`.
+
+- Contrast that with the CodeIgniter array example’s `$task['title']`. Blade’s loop and condition control presentation; they do not move database queries into the template.
+- `{{ }}` escapes the displayed values.
 
 Register GET `/tasks` to `TaskController::index` and GET `/tasks/{id}` to `TaskController::show`, importing the controller in `routes/web.php` as in M5. The route connects the request to the data-loading action; it does not replace that action.
 
@@ -154,7 +180,10 @@ public function show($id)
 <p>Status: {{ $task->status }}</p>
 ```
 
-`findOrFail()` retrieves one primary-key match or raises the missing-model exception that Laravel normally turns into a 404 response. That is different from CodeIgniter’s earlier `find()` example, where the controller explicitly checks for null. Do not blindly access a field on a missing record.
+`findOrFail()` retrieves one primary-key match or raises the missing-model exception that Laravel normally turns into a 404 response.
+
+- That is different from CodeIgniter’s earlier `find()` example, where the controller explicitly checks for null.
+- Do not blindly access a field on a missing record.
 
 **Tinker** is an interactive Laravel/PHP shell useful for checking whether data exists before debugging the page:
 
@@ -168,7 +197,10 @@ php artisan tinker
 
 The printed results assume the three seeded rows exist. `first()->title` also assumes `first()` found a model; an empty table requires a null check. Tinker is a development inspection tool, not part of the Blade page shown to visitors.
 
-**M6 recap:** configuration connects, migration creates schema, seeder inserts sample records, Eloquent queries models, controller supplies data, and Blade displays it. If the page is empty or fails, inspect connection/path, migration state, seed rows, model import, `$fillable` for writes, and the data passed to the view. The opening objectives and final recap/Q&A align with these responsibilities.
+**M6 recap:** configuration connects, migration creates schema, seeder inserts sample records, Eloquent queries models, controller supplies data, and Blade displays it.
+
+- If the page is empty or fails, inspect connection/path, migration state, seed rows, model import, `$fillable` for writes, and the data passed to the view.
+- The opening objectives and final recap/Q&A align with these responsibilities.
 
 
 ### 6.7 Additional migration, seeder, and route connections
@@ -211,6 +243,42 @@ The details action receives an ID in this module. M7 later demonstrates a bound 
 
 The list view uses `resources/views/tasks/index.blade.php`. The details view uses `resources/views/tasks/show.blade.php`. `view('tasks.index', compact('tasks'))` and `view('tasks.index', ['tasks' => $tasks])` provide the same named view variable.
 
-For the three seeded rows, the list shows two pending tasks and one completed task. The Blade condition converts stored `done` into the display label `Done`. The other branch prints `Pending`. This example assumes the course's two status values; it does not validate arbitrary stored statuses.
+For the three seeded rows, the list shows two pending tasks and one completed task.
+
+- The Blade condition converts stored `done` into the display label `Done`. The other branch prints `Pending`.
+- This example assumes the course's two status values; it does not validate arbitrary stored statuses.
 
 <mark>A working migration, model, and route do not prove that seed records exist.</mark> Check `Task::count()` in Tinker before changing a correctly written empty-list view.
+
+#### Apply the concepts: diagnose schema, records, and results
+
+These situations connect setup operations to the data that the page actually needs.
+
+**Situation 1 — The list is empty after a fresh local setup.**
+
+1. Confirm the active database connection or SQLite file.
+2. Confirm that the relevant migration ran there.
+3. Check the actual row count with a suitable development query.
+4. Run the intended seeder if the sample records have not been inserted.
+5. Check the controller’s view-data key and Blade loop if rows exist.
+
+**Reason:** a migration creates schema; it does not imply that a seeder ran. An empty collection can be the correct query result.
+
+**Situation 2 — The action needs one record, but the code returns a collection.**
+
+- `get()` / `all()` — multiple-model collection; normally loop over its models.
+- `first()` — one matching model or no result; check the missing-result path.
+- `findOrFail($id)` — one primary-key model or the not-found path.
+- `count()` — a number; it does not supply titles or model properties.
+
+**Reason:** choose the result contract before choosing the API. Reading `->title` from an entire collection confuses two different shapes.
+
+**Situation 3 — A model write receives a bad title.**
+
+1. Check the column’s storage definition.
+2. Check whether the model permits that intended mass-assigned field.
+3. Check the request’s acceptable-value rules.
+
+**Reason:** schema, `$fillable`, and validation are separate controls. A permitted writable string is not automatically a meaningful valid title.
+
+**Exam cue:** avoid destructive reset commands as a default repair. Rollback and recreation do not guarantee recovery of records that were removed.

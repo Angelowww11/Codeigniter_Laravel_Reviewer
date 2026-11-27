@@ -1,7 +1,21 @@
 ### 5.1 Transfer the MVC idea, then learn the new file map
 <p class="page-range">PDF pages 1–9 · Objectives, installation, conventions, and structure</p>
 
-Laravel is another server-side PHP framework. The concept does not restart from zero: a route receives a request, a controller coordinates work, a model handles data, and a view presents the result. What changes is the framework’s conventions, syntax, and tooling. The module emphasizes looking for the **same responsibility in a different location**.
+#### Key terms — identify the job
+
+- **Artisan** — Laravel’s project command-line tool, invoked with php artisan.
+- **Route facade** — The Route API used to define Laravel request mappings.
+- **Route parameter** — A captured path value such as {id}, passed to the handler.
+- **Controller action** — The selected request-handling method under app/Http/Controllers.
+- **Blade view** — A .blade.php template under resources/views.
+- **View identifier** — The dot-separated template name, such as tasks.show.
+- **View data** — Named values passed to a template; the keys become its variables.
+- **Environment settings** — Deployment-specific values read through the application configuration.
+
+Laravel is another server-side PHP framework.
+
+- The concept does not restart from zero: a route receives a request, a controller coordinates work, a model handles data, and a view presents the result.
+- What changes is the framework’s conventions, syntax, and tooling. The module emphasizes looking for the **same responsibility in a different location**.
 
 ```sh
 composer global require laravel/installer
@@ -9,7 +23,9 @@ laravel new myproject
 cd myproject
 ```
 
-Composer installs the Laravel installer as a global command-line tool. `laravel new` creates the project. The installer’s prompts and exact defaults can depend on the installed version, so these notes preserve the classroom workflow without claiming that every current installation looks identical.
+Composer installs the Laravel installer as a global command-line tool.
+
+- `laravel new` creates the project. The installer’s prompts and exact defaults can depend on the installed version, so these notes preserve the classroom workflow without claiming that every current installation looks identical.
 
 | Responsibility | CodeIgniter | Laravel |
 | --- | --- | --- |
@@ -37,7 +53,10 @@ APP_URL=http://localhost:8000
 DB_CONNECTION=sqlite
 ```
 
-`.env` contains values that differ between environments. Configuration files under `config/` read environment values and expose application settings. `APP_URL` describes the application address; it does not start a server. `APP_DEBUG=true` is shown for local development, not as a setting to expose internal debug details publicly.
+`.env` contains values that differ between environments.
+
+- Configuration files under `config/` read environment values and expose application settings. `APP_URL` describes the application address; it does not start a server.
+- `APP_DEBUG=true` is shown for local development, not as a setting to expose internal debug details publicly.
 
 ```sh
 php artisan serve
@@ -46,9 +65,14 @@ php artisan route:list
 php artisan make:controller PageController
 ```
 
-`serve` starts the simple local server, normally at port 8000. `list` shows available Artisan commands. `route:list` inspects registered routes. `make:controller` generates a controller in Laravel’s expected location. The PDF also mentions `composer run dev` for a project’s fuller development workflow; the tools it starts depend on that project’s script and frontend setup.
+`serve` starts the simple local server, normally at port 8000.
 
-**Troubleshooting:** “laravel not recognized” points toward the installer/Composer global bin PATH; “composer not recognized” points toward Composer installation or terminal PATH. A port-in-use error means another process is using that port. An error page should be read for the failing class, file, line, or configuration rather than dismissed as simply “Laravel not working.”
+- `list` shows available Artisan commands. `route:list` inspects registered routes. `make:controller` generates a controller in Laravel’s expected location.
+- The PDF also mentions `composer run dev` for a project’s fuller development workflow; the tools it starts depend on that project’s script and frontend setup.
+
+**Troubleshooting:** “laravel not recognized” points toward the installer/Composer global bin PATH; “composer not recognized” points toward Composer installation or terminal PATH.
+
+- A port-in-use error means another process is using that port. An error page should be read for the failing class, file, line, or configuration rather than dismissed as simply “Laravel not working.”
 
 <aside class="notes-important"><strong>Keep the command families separate</strong><p><mark><code>php spark ...</code> belongs to CodeIgniter. <code>php artisan ...</code> belongs to Laravel.</mark> Run project commands from the correct project directory.</p></aside>
 
@@ -72,7 +96,10 @@ Route::get('/about', function () {
 // Route::view('/about', 'about', ['course' => 'IT0049']);
 ```
 
-These are **alternatives** for explaining a route, not three duplicate `/about` registrations you should paste together. `Route::get` responds to GET. A closure can return a simple response directly. `Route::view` is convenient when a page needs a view and perhaps simple data, but not a separate controller action yet.
+These are **alternatives** for explaining a route, not three duplicate `/about` registrations you should paste together.
+
+- `Route::get` responds to GET. A closure can return a simple response directly.
+- `Route::view` is convenient when a page needs a view and perhaps simple data, but not a separate controller action yet.
 
 ```php
 Route::get('/tasks/{id}', function ($id) {
@@ -80,7 +107,10 @@ Route::get('/tasks/{id}', function ($id) {
 });
 ```
 
-Visiting `/tasks/15` supplies `15` as the route parameter. `{id}` is a captured path value, not query-string syntax and not a database lookup by itself. The route shown here has no numeric constraint. Laravel’s braces and parameter style should not be confused with CodeIgniter’s `(:num)` and `$1` handler syntax.
+Visiting `/tasks/15` supplies `15` as the route parameter.
+
+- `{id}` is a captured path value, not query-string syntax and not a database lookup by itself.
+- The route shown here has no numeric constraint. Laravel’s braces and parameter style should not be confused with CodeIgniter’s `(:num)` and `$1` handler syntax.
 
 ### 5.4 Controller classes and route connections
 <p class="page-range">PDF pages 24–28 · Generation, namespace, handler, and data</p>
@@ -110,7 +140,10 @@ use App\Http\Controllers\PageController;
 Route::get('/about', [PageController::class, 'about']);
 ```
 
-The route’s handler array names the controller class and method. Importing the class avoids Laravel looking for the wrong class name. The `view()` helper renders a template; its second argument is an associative array. Keys `course` and `module` become `$course` and `$module` in Blade.
+The route’s handler array names the controller class and method.
+
+- Importing the class avoids Laravel looking for the wrong class name. The `view()` helper renders a template; its second argument is an associative array.
+- Keys `course` and `module` become `$course` and `$module` in Blade.
 
 <mark>A controller prepares the response; it should not turn into the HTML template.</mark> The syntax changes from CodeIgniter, but this controller-to-view responsibility is familiar.
 
@@ -129,7 +162,10 @@ The route’s handler array names the controller class and method. Importing the
 </html>
 ```
 
-Blade is Laravel’s template system. The `.blade.php` extension matters: putting the file in a controller folder or naming it `about.php` does not match the course’s Blade convention. `view('about')` resolves the view name under `resources/views` without writing the full filename in the controller.
+Blade is Laravel’s template system.
+
+- The `.blade.php` extension matters: putting the file in a controller folder or naming it `about.php` does not match the course’s Blade convention.
+- `view('about')` resolves the view name under `resources/views` without writing the full filename in the controller.
 
 <aside class="notes-important"><strong>Normal output: double curly braces</strong><p><mark><code>{{ $value }}</code> escapes HTML output.</mark> <code>{!! $value !!}</code> is raw output and should not be used merely to display user-entered text. The raw-output line in the slide is an example of what to avoid for untrusted input.</p></aside>
 
@@ -154,7 +190,10 @@ public function task($id)
 
 Here the title is still fixed teaching data. The captured ID is displayed, but no task has been fetched from a database. M6 turns that visual example into a real data-backed details page.
 
-**M5 recap:** route → optional controller → view data → Blade → HTML response. Check file locations, imports, controller spelling, and the Blade filename if that chain breaks. The opening objectives and closing Q&A address setup, Artisan, routing, controllers, and templates; all are represented above.
+**M5 recap:** route → optional controller → view data → Blade → HTML response.
+
+- Check file locations, imports, controller spelling, and the Blade filename if that chain breaks.
+- The opening objectives and closing Q&A address setup, Artisan, routing, controllers, and templates; all are represented above.
 
 
 ### 5.6 Additional Laravel file and command details
@@ -195,3 +234,33 @@ The example application address is `http://localhost:8000`; Artisan also prints 
 The controller's data example uses `$course = 'Web System Technologies'` and `$module = 'Laravel Foundations'`. The route-only view example uses `course => 'IT0049'`. These are separate demonstrations of the same array-key-to-view-variable mechanism.
 
 **Check the request path before the template.** Inspect `php artisan route:list`. Check the controller import and method name. Check `resources/views/about.blade.php`. Check the keys passed to `view()`. This order traces the request through the application instead of changing unrelated files.
+
+#### Apply the concepts: transfer the idea, check the API
+
+These situations reuse the MVC responsibilities while keeping Laravel’s own syntax and file map.
+
+**Situation 1 — A nested Laravel view does not load.**
+
+1. Locate the template: `resources/views/tasks/show.blade.php`.
+2. Use the view identifier `tasks.show`.
+3. Pass the variables the template actually reads.
+
+**Reason:** the helper identifier is relative to the views directory. It is neither a browser URL nor a controller namespace.
+
+**Situation 2 — Different task URLs display the same fixed ID.**
+
+1. Check the captured `{id}` parameter.
+2. Check that the action receives that parameter.
+3. Trace whether the data passed to the view uses it.
+4. Replace a constant demonstration value with the selected value or the intended lookup.
+
+**Reason:** a parameterized route does not automatically replace hard-coded action data. The controller must use the selected value.
+
+**Situation 3 — A controller exists, but its intended page is unreachable.**
+
+- **Class** — confirm the controller’s namespace and import.
+- **Action** — confirm the public method exists.
+- **Route** — compare the actual method and path with `routes/web.php`.
+- **Response** — check whether the action returns text, a rendered view, or a redirect as intended.
+
+**Exam cue:** keep the framework names separate. Laravel uses Artisan, `Route`, `app/Http/Controllers`, and Blade. The request-to-response responsibilities still resemble MVC in CodeIgniter.

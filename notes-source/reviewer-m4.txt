@@ -1,7 +1,22 @@
 ### 4.1 Sessions give separate requests continuity
 <p class="page-range">PDF pages 1–9 · Objectives, session data, and removal</p>
 
-HTTP requests are separate exchanges. A **session** lets the server associate small pieces of state with the same visitor across requests. The browser commonly sends a session cookie identifying the relevant server-side session data. The cookie is not a reason to store the user’s password in session data.
+#### Key terms — identify the job
+
+- **Session** — Small server-side state associated with a visitor across separate requests.
+- **Session cookie** — The browser’s identifier for the associated session; it is not the user’s stored password.
+- **Flash data** — Session data intended for the next-request feedback cycle.
+- **Password hash** — The stored password representation created by password_hash().
+- **Verification** — The password_verify() check of a candidate against its stored hash.
+- **Authentication** — The identity check: who is the visitor?
+- **Authorization** — The access decision: may this visitor perform this operation on this record?
+- **Authentication filter** — A server-side gate attached to protected routes; its before() hook can stop the action.
+
+HTTP requests are separate exchanges.
+
+- A **session** lets the server associate small pieces of state with the same visitor across requests.
+- The browser commonly sends a session cookie identifying the relevant server-side session data.
+- The cookie is not a reason to store the user’s password in session data.
 
 ```php
 session()->set('username', 'admin');
@@ -12,7 +27,10 @@ session()->remove('username'); // One key
 session()->destroy();          // End the whole session
 ```
 
-Use the CodeIgniter session service/helper; the course does not manually call PHP’s `session_start()`. `set()` remembers a value, `get()` reads it, and `remove()` removes a particular key. Destroying the session ends the whole login state rather than removing one value and accidentally leaving others behind.
+Use the CodeIgniter session service/helper; the course does not manually call PHP’s `session_start()`.
+
+- `set()` remembers a value, `get()` reads it, and `remove()` removes a particular key.
+- Destroying the session ends the whole login state rather than removing one value and accidentally leaving others behind.
 
 | Appropriate small values | Values the module says to avoid |
 | --- | --- |
@@ -43,12 +61,18 @@ The key `message` must match on both sides. Set the message **before returning**
 
 <aside class="notes-clarify"><strong>Not “deleted because it was read”</strong><p>The next-request lifecycle is the important rule. Reading flash data is not the same as immediately deleting it on that read. The <a href="https://codeigniter4.github.io/userguide/libraries/sessions.html#flashdata" target="_blank" rel="noopener">CodeIgniter session documentation</a> describes its request-based availability.</p></aside>
 
-**Example:** POST creates a task and sets `message`; GET `/tasks` after the redirect displays it. A later ordinary refresh should not keep reporting that a new task was just created. A persistent `set()` value would be the wrong tool for a message meant to disappear.
+**Example:** POST creates a task and sets `message`; GET `/tasks` after the redirect displays it.
+
+- A later ordinary refresh should not keep reporting that a new task was just created.
+- A persistent `set()` value would be the wrong tool for a message meant to disappear.
 
 ### 4.3 Password storage and authentication
 <p class="page-range">PDF pages 16–20 · User records, hashing, and demo setup</p>
 
-**Authentication** checks who the visitor is. The course’s minimal login looks up a user by username and verifies the typed password against a stored password hash. A **users** table therefore needs an ID, a unique username, and a password-hash column, illustrated as `VARCHAR(255)`.
+**Authentication** checks who the visitor is.
+
+- The course’s minimal login looks up a user by username and verifies the typed password against a stored password hash.
+- A **users** table therefore needs an ID, a unique username, and a password-hash column, illustrated as `VARCHAR(255)`.
 
 ```php
 $hash = password_hash($plainPassword, PASSWORD_DEFAULT);
@@ -70,7 +94,10 @@ class UserModel extends Model
 }
 ```
 
-The slides create one hashed test account so the login query has a real row to find. The displayed demo credentials are classroom examples, not values to reuse in a real deployment. A model definition alone does not create the table or the account.
+The slides create one hashed test account so the login query has a real row to find.
+
+- The displayed demo credentials are classroom examples, not values to reuse in a real deployment.
+- A model definition alone does not create the table or the account.
 
 <aside class="notes-important"><strong>Hash and verify are a pair</strong><p><mark>Store with <code>password_hash()</code>; check with <code>password_verify()</code>.</mark> Do not compare the typed password directly with the stored hash using <code>==</code> or <code>===</code>, and do not re-hash the typed value and compare hash strings.</p></aside>
 
@@ -105,14 +132,21 @@ session()->set([
 return redirect()->to('/tasks');
 ```
 
-The first condition rejects an absent user before attempting to read their stored hash. The failure message is generic. The success branch remembers only the small values needed for subsequent requests. The session-ID regeneration line is labeled as an addition; it is not printed in the PDF’s short successful-login snippet.
+The first condition rejects an absent user before attempting to read their stored hash.
+
+- The failure message is generic. The success branch remembers only the small values needed for subsequent requests.
+- The session-ID regeneration line is labeled as an addition; it is not printed in the PDF’s short successful-login snippet.
 
 **Read this in order:** validate input → find username → verify password → establish session state → redirect. The protected task page is reached by a **new request**, which is why the login state must persist in the session.
 
 ### 4.5 Filters centralize protected-route checks
 <p class="page-range">PDF pages 27–31 · before(), after(), alias, and route attachment</p>
 
-A **filter** can run before controller logic. The authentication filter checks whether the login flag exists and is true. If the visitor is a guest, it returns a redirect to `/login` before allowing the task action to run. Repeating this check manually in every action is harder to maintain and easier to forget.
+A **filter** can run before controller logic.
+
+- The authentication filter checks whether the login flag exists and is true.
+- If the visitor is a guest, it returns a redirect to `/login` before allowing the task action to run.
+- Repeating this check manually in every action is harder to maintain and easier to forget.
 
 ```php
 // app/Filters/AuthFilter.php
@@ -164,7 +198,10 @@ public function logout()
 }
 ```
 
-The slide registers GET `/logout` for its classroom demonstration. Distinguish that printed example from a hardened state-changing workflow, which should use an appropriate non-GET route with CSRF protection. The important course session operation is `destroy()`; removing only `username` while leaving `isLoggedIn` would not correctly end the login state.
+The slide registers GET `/logout` for its classroom demonstration.
+
+- Distinguish that printed example from a hardened state-changing workflow, which should use an appropriate non-GET route with CSRF protection.
+- The important course session operation is `destroy()`; removing only `username` while leaving `isLoggedIn` would not correctly end the login state.
 
 **Manual check from the module:** log out → request `/tasks` directly → verify redirection to login → log in → request `/tasks` again. Repeat relevant checks for write actions instead of assuming protecting the list page protects every endpoint.
 
@@ -213,3 +250,34 @@ The filter's `before()` method can return a redirect before the controller runs.
 The success message example belongs in `app/Views/tasks/index.php`. Match its flash-data key to the controller's key. Match every login-state check to the exact session key `isLoggedIn`. A different spelling creates a different key.
 
 <mark>Authentication is a complete request sequence.</mark> The login POST establishes session state. The redirect causes another request. The protected route's filter reads that saved state. Logout destroys it before the next protected request.
+
+#### Apply the concepts: trace login across requests
+
+These situations use the module’s session, password, and filter responsibilities.
+
+**Situation 1 — A correct login immediately returns to the login page.**
+
+1. Check that the user lookup returns the intended stored account.
+2. Check the result of `password_verify()`.
+3. Check that the success branch saves the exact login-state key used by the filter.
+4. Check that the subsequent request reads the same working session.
+
+**Reason:** redirecting creates a new request. A local `$user` variable in the old action cannot establish identity for that new request.
+
+**Situation 2 — Logout removes the name, but protected requests still work.**
+
+- **Observed state:** `username` is removed, while `isLoggedIn` remains true.
+- **Filter decision:** the filter still sees a true login flag.
+- **Correction:** end the login session with the intended whole-session operation.
+- **Verification:** request the protected URL directly after logout.
+
+**Situation 3 — A logged-in visitor changes another person’s task.**
+
+1. Separate identity from permission.
+2. The login filter proves only the identity state it checks.
+3. Check the selected record’s access before the write.
+4. Apply the gate to the receiving route as well as the displayed page.
+
+**Reason:** hiding a control does not stop a direct request. A passed password check does not grant ownership of every record.
+
+**Exam cue:** distinguish hashing, verification, session persistence, authentication, and authorization. Each answers a different question in the same request sequence.

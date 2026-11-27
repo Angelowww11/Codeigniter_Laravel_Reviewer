@@ -1,0 +1,19 @@
+/* Editor-style semantic tokens, scoped to code. No remote runtime dependency. */
+:root{--syntax-bg:#f5f5f8;--syntax-fg:#252936;--syntax-comment:#526447;--syntax-keyword:#8838a5;--syntax-string:#98471f;--syntax-function:#72500b;--syntax-variable:#075d9e;--syntax-number:#286b48;--syntax-tag:#185a96;--syntax-attr:#864900;--syntax-operator:#343b48}
+html[data-mode=dark]{--syntax-bg:#171b24;--syntax-fg:#e1e5ee;--syntax-comment:#9db68f;--syntax-keyword:#d9a1ec;--syntax-string:#efb297;--syntax-function:#e4d999;--syntax-variable:#a3d8fb;--syntax-number:#b8dba5;--syntax-tag:#81b9f0;--syntax-attr:#edc47d;--syntax-operator:#dce0eb}
+.study-code,.notes-chapter pre,.guided-code{background:var(--syntax-bg)!important;color:var(--syntax-fg)!important;border:1px solid var(--line);border-radius:12px;max-width:100%;overflow:auto;tab-size:4;text-align:left}
+.study-code code,.notes-chapter pre code,.guided-code code{display:block;background:none!important;color:var(--syntax-fg);font:400 14px/1.85 Consolas,'Cascadia Code','Courier New',monospace;white-space:pre;overflow-wrap:normal;word-break:normal;padding:0;border:0;border-radius:0}
+code .token.comment,code .token.prolog,code .token.doctype{color:var(--syntax-comment)}
+code .token.keyword,code .token.atrule,code .token.boolean,code .token.important{color:var(--syntax-keyword)}
+code .token.string,code .token.attr-value,code .token.char{color:var(--syntax-string)}
+code .token.function,code .token.class-name{color:var(--syntax-function)}
+code .token.variable{color:var(--syntax-variable)}
+code .token.number,code .token.constant{color:var(--syntax-number)}
+code .token.tag,code .token.selector{color:var(--syntax-tag)}
+code .token.attr-name,code .token.property{color:var(--syntax-attr)}
+code .token.operator,code .token.punctuation{color:var(--syntax-operator);background:none}
+.inline-syntax{background:var(--syntax-bg);color:var(--syntax-fg);font:400 .94em/1.6 Consolas,'Cascadia Code',monospace;padding:.12em .3em;border-radius:4px;overflow-wrap:anywhere;white-space:normal}
+.choice{font-family:'DM Sans','Segoe UI',sans-serif;font-size:15px;line-height:1.7}
+.choice>span:last-child{min-width:0}
+@media(max-width:600px){.study-code code,.notes-chapter pre code,.guided-code code{font-size:13px}}
+@media print{.study-code,.notes-chapter pre,.guided-code{background:#f5f5f5!important;color:#111!important;border-color:#bbb;overflow:visible;white-space:pre-wrap;break-inside:avoid}.study-code code,.notes-chapter pre code,.guided-code code{white-space:pre-wrap;overflow-wrap:anywhere;font-size:9pt}.token{color:#111!important}}

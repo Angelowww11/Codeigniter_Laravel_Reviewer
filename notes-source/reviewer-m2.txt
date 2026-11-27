@@ -1,6 +1,17 @@
 ### 2.1 What the database adds
 <p class="page-range">PDF pages 1–9 · Objectives, persistent records, schema, and sample data</p>
 
+#### Key terms — identify the job
+
+- **Schema** — The tables, columns, types, and constraints in the database.
+- **Primary key** — The unique row identifier; it is not the row’s position in a list.
+- **Model configuration** — The table, key, return type, and writable fields used by a model.
+- **Filter** — A condition selecting matching rows, such as status=pending. This is a query filter, distinct from an authentication filter.
+- **Order** — The sequence of results. DESC places greater or later values first.
+- **Limit** — The maximum number of returned rows.
+- **Retrieval** — The operation that executes the prepared selection and returns records.
+- **Escaping** — Output handling for the display context; it does not replace query construction or validation.
+
 A database holds records that survive application restarts and can be read or changed across requests. A hard-coded array is useful for demonstrating a view, but it does not become a persistent shared task list merely because it looks like one in the browser.
 
 The course uses a **tasks** table throughout the examples:
@@ -19,7 +30,11 @@ INSERT INTO tasks (title, status, created_at) VALUES
 ('Fix login bug', 'done', NOW());
 ```
 
-`id` uniquely identifies a row and is generated automatically. `title` allows up to 150 characters and cannot be SQL NULL. `status` defaults to `pending` if omitted. `created_at` stores a date and time; this schema does not itself give that column an automatic default. The sample INSERT explicitly supplies `NOW()`.
+`id` uniquely identifies a row and is generated automatically.
+
+- `title` allows up to 150 characters and cannot be SQL NULL. `status` defaults to `pending` if omitted.
+- `created_at` stores a date and time; this schema does not itself give that column an automatic default.
+- The sample INSERT explicitly supplies `NOW()`.
 
 <aside class="notes-important"><strong>Two separate setup steps</strong><p><mark>Creating a table does not insert its sample records.</mark> An empty task list can mean the connection and query worked correctly but the table has no rows.</p></aside>
 
@@ -36,7 +51,10 @@ database.default.password =
 database.default.DBDriver = MySQLi
 ```
 
-The blank password and root account belong to the illustrated local setup; substitute the actual local account values rather than assuming every database uses them. `app/Config/Database.php` defines database configuration defaults. Matching `.env` values override those defaults, so avoid keeping conflicting credentials in multiple places. Local secrets should not be committed to a repository.
+The blank password and root account belong to the illustrated local setup; substitute the actual local account values rather than assuming every database uses them.
+
+- `app/Config/Database.php` defines database configuration defaults. Matching `.env` values override those defaults, so avoid keeping conflicting credentials in multiple places.
+- Local secrets should not be committed to a repository.
 
 | Symptom in the course | What to check first |
 | --- | --- |
@@ -73,7 +91,10 @@ The course uses one model per table as its starting convention. That helps begin
 ### 2.4 Read queries: selection, filtering, order, and execution
 <p class="page-range">PDF pages 21–27 · Query Builder and model retrieval</p>
 
-**Query Builder** lets PHP method calls describe a query. Normal value arguments are escaped/bound by the framework rather than being pasted into hand-built SQL. This reduces routine SQL mistakes; it does not make arbitrary raw SQL fragments or unvalidated user-chosen SQL identifiers safe.
+**Query Builder** lets PHP method calls describe a query.
+
+- Normal value arguments are escaped/bound by the framework rather than being pasted into hand-built SQL.
+- This reduces routine SQL mistakes; it does not make arbitrary raw SQL fragments or unvalidated user-chosen SQL identifiers safe.
 
 ```php
 $model = new \App\Models\TaskModel();
@@ -87,7 +108,10 @@ $pending = $model
     ->findAll();
 ```
 
-Read the chain as: **keep matching rows → choose their order → retrieve them**. `where()` restricts results; `orderBy()` sorts them. `DESC` means descending and `ASC` ascending. For a creation date, descending usually places newer records first. Equal timestamps may need an additional ordering key if a precise tie order matters.
+Read the chain as: **keep matching rows → choose their order → retrieve them**.
+
+- `where()` restricts results; `orderBy()` sorts them. `DESC` means descending and `ASC` ascending.
+- For a creation date, descending usually places newer records first. Equal timestamps may need an additional ordering key if a precise tie order matters.
 
 | Method | Purpose | Typical result |
 | --- | --- | --- |
@@ -170,7 +194,11 @@ public function show($id)
 
 The route supplies the ID; `find()` searches by the configured primary key. A numeric URL component does not guarantee a matching row. <mark>Check for null before trying to display a field.</mark> The fully qualified exception in this rewritten example makes the class reference explicit; it expresses the missing-record response introduced in the slides.
 
-**M2 in one chain:** `.env` connects → model identifies the table → query retrieves records → controller passes an array → view displays escaped values. If records fail to appear, check the database and query result before blaming the view. Common faults are a wrong table name, missing writable-field configuration during saves, missing sample rows, and using a nonexistent record without checking it. The opening objectives and final recap/Q&A frame these same database tasks.
+**M2 in one chain:** `.env` connects → model identifies the table → query retrieves records → controller passes an array → view displays escaped values.
+
+- If records fail to appear, check the database and query result before blaming the view.
+- Common faults are a wrong table name, missing writable-field configuration during saves, missing sample rows, and using a nonexistent record without checking it.
+- The opening objectives and final recap/Q&A frame these same database tasks.
 
 
 ### 2.7 Additional configuration and query examples
@@ -220,6 +248,47 @@ $tasks = $model->findAll();
 $tasks = model(TaskModel::class)->findAll();
 ```
 
-For the sample records, `/tasks/3` displays `Fix login bug` with status `done`. This result depends on the inserted IDs. The URL number is not an array position. The controller passes the singular `task` key to `app/Views/tasks/show.php`; the list uses the plural `tasks` key.
+For the sample records, `/tasks/3` displays `Fix login bug` with status `done`.
+
+- This result depends on the inserted IDs. The URL number is not an array position.
+- The controller passes the singular `task` key to `app/Views/tasks/show.php`; the list uses the plural `tasks` key.
 
 <mark>Escaping query values and escaping HTML output are separate operations.</mark> The query tool handles normal query values. `esc()` handles displayed text in the view. Neither operation replaces the application's validation rules.
+
+#### Apply the concepts: distinguish the result you need
+
+These worked situations use the module’s database and model responsibilities with new record values.
+
+**Situation 1 — Show three pending tasks, newest first.**
+
+1. Select the model for the tasks table.
+2. Filter the status to `pending`.
+3. Order the creation time in descending order.
+4. Limit the result to three records.
+5. Execute retrieval and pass the resulting rows to the view.
+
+```php
+$tasks = $model->where('status', 'pending')
+    ->orderBy('created_at', 'DESC')
+    ->limit(3)
+    ->findAll();
+```
+
+**Reason:** filtering answers “which rows?” Ordering answers “in which order?” Limiting answers “how many at most?” Retrieval actually returns the rows.
+
+**Situation 2 — A details URL requests a missing task.**
+
+1. Call `find($id)` for the selected primary key.
+2. Check whether the result is `null`.
+3. Return an appropriate not-found response before reading the title.
+
+**Result:** do not substitute the first available row. That would display a different task from the one requested.
+
+**Situation 3 — The page works, but the database test fails.**
+
+- **Connection refused** — check the service and configured address/port.
+- **Unknown database** — check whether the configured database exists.
+- **Access denied** — check the account, password, and permitted access.
+- **Correct records but wrong display** — inspect the view-data key, row shape, and escaped output.
+
+**Exam cue:** separate connection, query, result shape, and presentation. A working welcome page does not prove that the database works.
