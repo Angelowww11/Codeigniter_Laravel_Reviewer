@@ -1,7 +1,7 @@
 ### 1.1 The browser, server, and framework
 <p class="page-range">PDF pages 1–9 · Course introduction, objectives, and request–response</p>
 
-#### Key terms — identify the job
+#### Key terms and meanings
 
 - **Request** — The incoming HTTP message. Check its method and path.
 - **Response** — The server’s outgoing message, often rendered HTML.
@@ -258,11 +258,11 @@ The other printed alternative moves `index.php` and `.htaccess` from `public/` i
 
 **Check the complete route match.** A route requires the correct HTTP method and path. A public controller method does not register its own explicit route. `(:any)` can capture multiple path components, while `(:segment)` captures one. `(:hash)` communicates the intended identifier type but does not hash, decode, or validate an identifier's ownership.
 
-#### Apply the concepts: trace the request
+#### Workflow notes: the route-to-response sequence
 
-These worked situations apply the module’s ideas to new values. They add reasoning practice without changing the framework conventions.
+These notes connect the module’s route, controller, data, and view responsibilities. The examples remain fully explained.
 
-**Situation 1 — The form submits, but the action never runs.**
+##### Form submissions and matching routes
 
 1. Identify the actual request: for example, `POST /contact`.
 2. Compare its method and path with the route definition.
@@ -271,7 +271,7 @@ These worked situations apply the module’s ideas to new values. They add reaso
 
 **Result:** diagnose dispatch before changing the view or data layer. A correct controller cannot process a request that does not reach it.
 
-**Situation 2 — The controller has data, but the template reports an undefined variable.**
+##### Controller data keys and template variables
 
 1. Read the data key passed to `view()`: `['displayName' => $name]`.
 2. That key creates `$displayName` in the view.
@@ -279,10 +279,10 @@ These worked situations apply the module’s ideas to new values. They add reaso
 
 **Result:** the controller’s local variable name does not automatically become the view’s variable name.
 
-**Situation 3 — Clean links fail only under Apache.**
+##### Clean URLs under Apache
 
 - **Known fact:** an empty `indexPage` setting removes `index.php` from generated links.
 - **Separate requirement:** the web server must rewrite incoming clean paths through the public entry point.
-- **Next check:** inspect the document root and rewriting setup before moving internal files into public access.
+- **Server configuration:** the document root and rewrite rules determine how clean URLs reach the public entry point.
 
-**Exam cue:** name the failed connection: request → route → controller → data → view → response. Correct the step supported by the evidence.
+**Key connection:** name the failed connection: request → route → controller → data → view → response. Correct the step supported by the evidence.

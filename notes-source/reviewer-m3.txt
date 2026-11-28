@@ -1,7 +1,7 @@
 ### 3.1 The complete form workflow
 <p class="page-range">PDF pages 1–9 · Objectives, request methods, CSRF, and submitted values</p>
 
-#### Key terms — identify the job
+#### Key terms and meanings
 
 - **GET form action** — The handler that displays the form.
 - **POST submission** — The request that sends the fields for a server-side decision.
@@ -282,11 +282,11 @@ The `mkdir($uploadPath, 0775, true)` example creates missing parent directories 
 
 The final upload fragment omits its earlier validation branch. Read it together with the file rules and checklist. <mark>Do not copy the final fragment as permission to skip validation.</mark>
 
-#### Apply the concepts: keep invalid changes out
+#### Workflow notes: validation, persistence, and attachment display
 
-These situations connect the module’s form, validation, CRUD, and upload steps.
+The form, validation, CRUD, and upload stages work together in the following order.
 
-**Situation 1 — An invalid title reaches the database.**
+##### Validation before a database write
 
 1. Locate the validation call and the insert call.
 2. Move the decision before persistence if the insert currently runs first.
@@ -295,14 +295,14 @@ These situations connect the module’s form, validation, CRUD, and upload steps
 
 **Reason:** validation is a checkpoint before the write. Displaying an error after saving cannot prevent the invalid row.
 
-**Situation 2 — An unchanged title fails a uniqueness check during an edit.**
+##### Uniqueness when an existing record is edited
 
 - **Create rule meaning:** no existing record may use the proposed title.
 - **Update distinction:** the selected task already uses its own title.
-- **Required reasoning:** exclude the current record when enforcing uniqueness against other records.
+- **Update uniqueness:** exclude the current record when checking uniqueness against other records.
 - **Keep:** the other presence, type, and length rules still apply.
 
-**Situation 3 — An upload reports success, but its image is broken.**
+##### The attachment from request to displayed image
 
 1. Match the form input name to `getFile()` and the file rules.
 2. Check multipart encoding and server-side validation.
@@ -312,4 +312,4 @@ These situations connect the module’s form, validation, CRUD, and upload steps
 
 **Reason:** the uploaded object, server path, database filename, and public URL are four different values. One correct value does not prove the others are correct.
 
-**Exam cue:** choose the earliest failed step supported by the situation. Do not fix a failed file move by changing an unrelated title rule.
+**Key connection:** choose the earliest failed step supported by the situation. Do not fix a failed file move by changing an unrelated title rule.

@@ -26,7 +26,13 @@ for(const q of questions){
 }
 const malicious='<img src=x onerror=alert(1)>',probe={answer:'A',choices:['A',malicious,'C','D'],explanation:malicious,choiceExplanations:{A:malicious,[malicious]:malicious,C:'A reason for C',D:'A reason for D'}};
 assert.ok(!render(probe,malicious).includes('<img'));
-for(const [file,expected]of Object.entries(baseline.files))assert.equal(hash(fs.readFileSync(file)),expected,file+' changed');
+// The authorized reading-note revision changes headings and adds source guides.
+// Its separate check reconstructs each original chapter and checks its prior hash.
+require('./check_reading_notes.cjs').check();
+for(const [file,expected]of Object.entries(baseline.files)){
+ if(file==='reviewer.html'||file.startsWith('notes-source/'))continue;
+ assert.equal(hash(fs.readFileSync(file)),expected,file+' changed');
+}
 const deployed={window:{}};vm.runInNewContext(fs.readFileSync('content.js','utf8'),deployed);delete deployed.window.STUDY_DATA.questions;
 assert.equal(hash(JSON.stringify(deployed.window.STUDY_DATA)),baseline.courseData,'Course modules, lessons, or references changed');
 const entry=fs.readFileSync('index.html','utf8');
@@ -38,4 +44,4 @@ assert.ok(!questions.find(q=>q.id==='m4q6-feedback-v3').choices.includes('get()'
 for(const [id,required]of [['m7q41','CSRF'],['m7q11','kilobytes'],['m8q53','property'],['m6q13-feedback-v3','collection']]){
  assert.ok(questions.find(q=>q.id===id).explanation.toLowerCase().includes(required.toLowerCase()),id+' must explain its own topic');
 }
-console.log(`PASS: 480 questions, 1920 authored choice explanations, ${selections} answer states, shuffled choices, escaping, eight explicit revisions, and ${Object.keys(baseline.files).length} unchanged course files.`);
+console.log(`PASS: 480 questions, 1920 authored choice explanations, ${selections} answer states, shuffled choices, escaping, eight explicit revisions, unchanged course assets, and preserved note explanations.`);

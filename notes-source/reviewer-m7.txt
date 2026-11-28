@@ -1,7 +1,7 @@
 ### 7.1 Displaying a form and receiving its submission
 <p class="page-range">PDF pages 1–11 · Objectives, named routes, CSRF, form, and Request</p>
 
-#### Key terms — identify the job
+#### Key terms and meanings
 
 - **create / store** — Display the new-record form / receive its POST submission.
 - **edit / update** — Display the selected record’s form / receive its intended changes.
@@ -314,11 +314,11 @@ public function update(UpdateTaskRequest $request, Task $task)
 
 This is an explanatory connection to the generated class. Configure its authorization behavior and the task's access checks. <mark>Generating a Form Request file does not attach it to every controller action automatically.</mark>
 
-#### Apply the concepts: preserve the record and its attachment
+#### Workflow notes: record updates and attachment storage
 
-These situations apply the module’s form, binding, validation, and storage sequence.
+Record selection, access, validation, and storage each have a separate responsibility.
 
-**Situation 1 — The edit form cannot reach its PATCH action.**
+##### The POST form that expresses a PATCH update
 
 1. Check the form’s target named route and selected task parameter.
 2. Use a normal POST form.
@@ -327,7 +327,7 @@ These situations apply the module’s form, binding, validation, and storage seq
 
 **Reason:** the hidden method field and token have different jobs. Neither selects an incorrectly named route for the form.
 
-**Situation 2 — Replacing an image removes the old image, then fails.**
+##### Preserving an attachment during replacement
 
 1. Establish the selected record and access.
 2. Validate the new upload before replacing anything.
@@ -338,11 +338,11 @@ These situations apply the module’s form, binding, validation, and storage seq
 
 **Reason:** filesystem changes and database changes are separate operations. They do not automatically undo each other. If no replacement is supplied, keep the existing attachment unless removal is explicitly intended.
 
-**Situation 3 — The stored file exists, but the public image is broken.**
+##### The stored path and the public image URL
 
 - **Stored value:** `attachments/generated.png` is a relative disk path.
 - **Public URL:** prefix it with the intended `storage/` URL segment once.
 - **Local setup:** confirm the `public/storage` link for the public disk.
 - **Cleanup:** use the same disk and relative path when deleting the file.
 
-**Exam cue:** binding finds the record; authorization permits the operation; validation checks the fields; storage handles the file. Passing one does not replace the others.
+**Key connection:** binding finds the record; authorization permits the operation; validation checks the fields; storage handles the file. Passing one does not replace the others.

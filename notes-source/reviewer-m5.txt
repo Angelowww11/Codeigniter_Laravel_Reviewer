@@ -1,7 +1,7 @@
 ### 5.1 Transfer the MVC idea, then learn the new file map
 <p class="page-range">PDF pages 1–9 · Objectives, installation, conventions, and structure</p>
 
-#### Key terms — identify the job
+#### Key terms and meanings
 
 - **Artisan** — Laravel’s project command-line tool, invoked with php artisan.
 - **Route facade** — The Route API used to define Laravel request mappings.
@@ -235,11 +235,11 @@ The controller's data example uses `$course = 'Web System Technologies'` and `$m
 
 **Check the request path before the template.** Inspect `php artisan route:list`. Check the controller import and method name. Check `resources/views/about.blade.php`. Check the keys passed to `view()`. This order traces the request through the application instead of changing unrelated files.
 
-#### Apply the concepts: transfer the idea, check the API
+#### Workflow notes: Laravel file and response connections
 
-These situations reuse the MVC responsibilities while keeping Laravel’s own syntax and file map.
+The MVC responsibilities remain familiar while Laravel uses its own file locations and APIs.
 
-**Situation 1 — A nested Laravel view does not load.**
+##### Nested Blade view identifiers
 
 1. Locate the template: `resources/views/tasks/show.blade.php`.
 2. Use the view identifier `tasks.show`.
@@ -247,7 +247,7 @@ These situations reuse the MVC responsibilities while keeping Laravel’s own sy
 
 **Reason:** the helper identifier is relative to the views directory. It is neither a browser URL nor a controller namespace.
 
-**Situation 2 — Different task URLs display the same fixed ID.**
+##### Using the route parameter in the response
 
 1. Check the captured `{id}` parameter.
 2. Check that the action receives that parameter.
@@ -256,11 +256,11 @@ These situations reuse the MVC responsibilities while keeping Laravel’s own sy
 
 **Reason:** a parameterized route does not automatically replace hard-coded action data. The controller must use the selected value.
 
-**Situation 3 — A controller exists, but its intended page is unreachable.**
+##### The route, controller, action, and response
 
 - **Class** — confirm the controller’s namespace and import.
 - **Action** — confirm the public method exists.
 - **Route** — compare the actual method and path with `routes/web.php`.
 - **Response** — check whether the action returns text, a rendered view, or a redirect as intended.
 
-**Exam cue:** keep the framework names separate. Laravel uses Artisan, `Route`, `app/Http/Controllers`, and Blade. The request-to-response responsibilities still resemble MVC in CodeIgniter.
+**Key connection:** keep the framework names separate. Laravel uses Artisan, `Route`, `app/Http/Controllers`, and Blade. The request-to-response responsibilities still resemble MVC in CodeIgniter.

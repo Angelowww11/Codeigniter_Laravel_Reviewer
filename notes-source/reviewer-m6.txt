@@ -1,7 +1,7 @@
 ### 6.1 Six pieces of the Laravel data layer
 <p class="page-range">PDF pages 1–8 · Objectives, database choice, and file responsibilities</p>
 
-#### Key terms — identify the job
+#### Key terms and meanings
 
 - **Migration** — A versioned schema change with forward and reverse operations.
 - **Seeder** — A class that inserts intended sample records when run.
@@ -250,11 +250,11 @@ For the three seeded rows, the list shows two pending tasks and one completed ta
 
 <mark>A working migration, model, and route do not prove that seed records exist.</mark> Check `Task::count()` in Tinker before changing a correctly written empty-list view.
 
-#### Apply the concepts: diagnose schema, records, and results
+#### Workflow notes: schema, sample records, and model results
 
-These situations connect setup operations to the data that the page actually needs.
+Database setup and retrieval produce different results at different stages.
 
-**Situation 1 — The list is empty after a fresh local setup.**
+##### Schema and seed records in a new local database
 
 1. Confirm the active database connection or SQLite file.
 2. Confirm that the relevant migration ran there.
@@ -264,7 +264,7 @@ These situations connect setup operations to the data that the page actually nee
 
 **Reason:** a migration creates schema; it does not imply that a seeder ran. An empty collection can be the correct query result.
 
-**Situation 2 — The action needs one record, but the code returns a collection.**
+##### Collections, single models, and counts
 
 - `get()` / `all()` — multiple-model collection; normally loop over its models.
 - `first()` — one matching model or no result; check the missing-result path.
@@ -273,7 +273,7 @@ These situations connect setup operations to the data that the page actually nee
 
 **Reason:** choose the result contract before choosing the API. Reading `->title` from an entire collection confuses two different shapes.
 
-**Situation 3 — A model write receives a bad title.**
+##### Schema, writable fields, and validation
 
 1. Check the column’s storage definition.
 2. Check whether the model permits that intended mass-assigned field.
@@ -281,4 +281,4 @@ These situations connect setup operations to the data that the page actually nee
 
 **Reason:** schema, `$fillable`, and validation are separate controls. A permitted writable string is not automatically a meaningful valid title.
 
-**Exam cue:** avoid destructive reset commands as a default repair. Rollback and recreation do not guarantee recovery of records that were removed.
+**Key connection:** avoid destructive reset commands as a default repair. Rollback and recreation do not guarantee recovery of records that were removed.

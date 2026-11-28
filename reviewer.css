@@ -28,3 +28,6 @@ html{scroll-behavior:auto!important}.notes-table table{min-width:600px!important
 .notes-table table{width:100%}
 }
 @media screen and (max-width:600px){.notes-topbar nav a{font-size:11px;line-height:1.35;min-height:50px}.notes-topbar nav{min-height:70px}.notes-table th,.notes-table td{font-size:12px}}
+/* Explanatory subheadings keep the reading notes separate from practice prompts. */
+.notes-chapter h5{font:700 18px/1.5 'DM Sans',sans-serif;margin:28px 0 12px;letter-spacing:normal;color:var(--ink);scroll-margin-top:110px}
+[id$="-source-details"],[id$="-application"]{scroll-margin-top:110px}

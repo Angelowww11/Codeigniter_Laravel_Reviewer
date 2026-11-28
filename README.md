@@ -4,7 +4,7 @@ A mobile-friendly IT0049 study space for CodeIgniter and Laravel.
 
 ## Reviewer Notes
 
-Open [`reviewer.html`](reviewer.html) from the **Reviewer Notes** tab for a continuous reading version: roughly 17,000 words including code, 55 sections covering all 300 PDF pages, 11 figures, 107 code examples, highlighted takeaways, tables, and original PDF page links. Each module adds term-and-meaning lists and three worked situations. The notes preserve the original explanations while separating dense text into lists and steps. All eight chapters remain open; there are no quizzes, answer reveals, or study-state controls in this document. The existing study website and original slides are preserved.
+Open [`reviewer.html`](reviewer.html) from the **Reviewer Notes** tab for a continuous reading version: roughly 19,000 words including code, 55 numbered sections covering all 300 PDF pages, 11 figures, 107 code examples, highlighted takeaways, tables, and original PDF page links. Each module contains definitions, explanatory workflow notes, and a source-linked connection guide. The notes preserve the original explanations and code while replacing the earlier situation and exam-cue labels with ordinary reading headings. All eight chapters remain open; there are no quiz prompts, answer reveals, or study-state controls in this document. The existing study website and original slides are preserved.
 
 The notes are static HTML, readable without JavaScript, mobile friendly, and styled for browser printing. They follow the classroom PDFs and explicitly label corrections, prerequisites, and additional explanations. Official documentation links support those clarifications.
 
@@ -53,6 +53,8 @@ The practice, guided-study, slide-reader, appearance, and mobile navigation flow
 
 The editable note chapters are in notes-source/. Rebuild reviewer.html with python tools/build_reviewer.py. The generator requires Python markdown-it-py and Node.js. It applies syntax colors during generation, so the complete notes remain readable without JavaScript.
 
+`notes-source/module-connections.json` contains eight added reading guides. They explain route targets and view variables, query result shapes, upload representations, session lifetimes, Laravel response patterns, data-layer stages, optional replacement files, and mail conditions. They use the supplied PDFs as their scope. `tools/notes-source-map.json` accounts for each of the 300 source pages.
+
 Each module contains 60 questions. The Practice screen permits 1–60 questions per new session, including the optional practice modes. Revised questions receive versioned IDs. Previous answers do not count as attempts on a changed question. The app keeps session history, original-slide progress, and unchanged question records. A saved session that contains a retired question closes safely.
 
 ## Application practice and code colors
@@ -70,9 +72,10 @@ node tools/check_question_bank.cjs
 node tools/check_answer_feedback.cjs
 node tools/check_code_format.cjs
 python tools/check_reviewer.py
+node tools/check_reading_notes.cjs
 ```
 
-The checks verify the canonical bank, 60 questions and 24 applied checks per module, unique answers, PDF references, code escaping, Blade tokens, and exact source text in all 107 rendered code examples. Browser checks cover answer feedback, session completion, the 60-question limit, retired sessions, retained slide progress, dynamic lesson code colors, and mobile code scrolling.
+The checks verify the canonical bank, 60 questions and 24 applied checks per module, unique answers, PDF references, code escaping, Blade tokens, and exact source text in all 107 rendered code examples. The reading-note check reverses the explicitly recorded style edits and compares each chapter with its original hash. It also checks the 300-page source map. Browser checks cover answer feedback, session completion, the 60-question limit, retired sessions, retained slide progress, dynamic lesson code colors, and mobile code scrolling.
 
 ## Exam answer explanations
 

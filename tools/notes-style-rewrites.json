@@ -1,0 +1,314 @@
+{
+  "1": {
+    "file": "notes-source/reviewer-m1.txt",
+    "original_sha256": "360ea260c791eef8423eefc576b3222e4d7c91c00d8a3b62eb999218580e4b1f",
+    "original_crlf": true,
+    "replacements": [
+      [
+        "#### Key terms — identify the job",
+        "#### Key terms and meanings"
+      ],
+      [
+        "#### Apply the concepts: trace the request",
+        "#### Workflow notes: the route-to-response sequence"
+      ],
+      [
+        "These worked situations apply the module’s ideas to new values. They add reasoning practice without changing the framework conventions.",
+        "These notes connect the module’s route, controller, data, and view responsibilities. The examples remain fully explained."
+      ],
+      [
+        "**Situation 1 — The form submits, but the action never runs.**",
+        "##### Form submissions and matching routes"
+      ],
+      [
+        "**Situation 2 — The controller has data, but the template reports an undefined variable.**",
+        "##### Controller data keys and template variables"
+      ],
+      [
+        "**Situation 3 — Clean links fail only under Apache.**",
+        "##### Clean URLs under Apache"
+      ],
+      [
+        "**Exam cue:**",
+        "**Key connection:**"
+      ],
+      [
+        "- **Next check:** inspect the document root and rewriting setup before moving internal files into public access.",
+        "- **Server configuration:** the document root and rewrite rules determine how clean URLs reach the public entry point."
+      ]
+    ]
+  },
+  "2": {
+    "file": "notes-source/reviewer-m2.txt",
+    "original_sha256": "842943149971395edc3b075fcba10ee58c13319e5e508917648a3d0741e1c875",
+    "original_crlf": true,
+    "replacements": [
+      [
+        "#### Key terms — identify the job",
+        "#### Key terms and meanings"
+      ],
+      [
+        "#### Apply the concepts: distinguish the result you need",
+        "#### Workflow notes: the data retrieval sequence"
+      ],
+      [
+        "These worked situations use the module’s database and model responsibilities with new record values.",
+        "The following explanations connect database configuration, model retrieval, and the returned page."
+      ],
+      [
+        "**Situation 1 — Show three pending tasks, newest first.**",
+        "##### Filtering, ordering, limiting, and retrieving rows"
+      ],
+      [
+        "**Situation 2 — A details URL requests a missing task.**",
+        "##### A missing task on a details page"
+      ],
+      [
+        "**Situation 3 — The page works, but the database test fails.**",
+        "##### Connection errors and presentation errors"
+      ],
+      [
+        "**Exam cue:**",
+        "**Key connection:**"
+      ],
+      [
+        "**Reason:** filtering answers “which rows?” Ordering answers “in which order?” Limiting answers “how many at most?” Retrieval actually returns the rows.",
+        "**Explanation:** filtering selects the matching rows. Ordering sets their sequence. Limiting caps the result count. Retrieval executes the query and returns the rows."
+      ]
+    ]
+  },
+  "3": {
+    "file": "notes-source/reviewer-m3.txt",
+    "original_sha256": "b06eb3f8104cb070c97b1dae4b7af6fcbaf83cf1d6dc353bcd2d5241c58a85ee",
+    "original_crlf": true,
+    "replacements": [
+      [
+        "#### Key terms — identify the job",
+        "#### Key terms and meanings"
+      ],
+      [
+        "#### Apply the concepts: keep invalid changes out",
+        "#### Workflow notes: validation, persistence, and attachment display"
+      ],
+      [
+        "These situations connect the module’s form, validation, CRUD, and upload steps.",
+        "The form, validation, CRUD, and upload stages work together in the following order."
+      ],
+      [
+        "**Situation 1 — An invalid title reaches the database.**",
+        "##### Validation before a database write"
+      ],
+      [
+        "**Situation 2 — An unchanged title fails a uniqueness check during an edit.**",
+        "##### Uniqueness when an existing record is edited"
+      ],
+      [
+        "**Situation 3 — An upload reports success, but its image is broken.**",
+        "##### The attachment from request to displayed image"
+      ],
+      [
+        "**Exam cue:**",
+        "**Key connection:**"
+      ],
+      [
+        "- **Required reasoning:** exclude the current record when enforcing uniqueness against other records.",
+        "- **Update uniqueness:** exclude the current record when checking uniqueness against other records."
+      ]
+    ]
+  },
+  "4": {
+    "file": "notes-source/reviewer-m4.txt",
+    "original_sha256": "71ca5fb5b8a502d58d4c4f7cb974e70735e7a823c52a9f1e861e10530bc02d4f",
+    "original_crlf": true,
+    "replacements": [
+      [
+        "#### Key terms — identify the job",
+        "#### Key terms and meanings"
+      ],
+      [
+        "#### Apply the concepts: trace login across requests",
+        "#### Workflow notes: session-backed login and access"
+      ],
+      [
+        "These situations use the module’s session, password, and filter responsibilities.",
+        "Session state connects the login request to the later protected request."
+      ],
+      [
+        "**Situation 1 — A correct login immediately returns to the login page.**",
+        "##### Login state across a redirect"
+      ],
+      [
+        "**Situation 2 — Logout removes the name, but protected requests still work.**",
+        "##### Complete logout state"
+      ],
+      [
+        "**Situation 3 — A logged-in visitor changes another person’s task.**",
+        "##### Record ownership after login"
+      ],
+      [
+        "**Exam cue:**",
+        "**Key connection:**"
+      ],
+      [
+        "- **Authentication** — The identity check: who is the visitor?",
+        "- **Authentication** — Verification of the visitor’s identity evidence."
+      ],
+      [
+        "- **Authorization** — The access decision: may this visitor perform this operation on this record?",
+        "- **Authorization** — The decision that permits or denies a visitor’s operation on a particular record."
+      ],
+      [
+        "Authentication answers “logged in?”; role and record-ownership permissions need additional checks.",
+        "Authentication establishes the required login state; role and record-ownership permissions need additional checks."
+      ],
+      [
+        "Each answers a different question in the same request sequence.",
+        "Each has a different responsibility in the same request sequence."
+      ]
+    ]
+  },
+  "5": {
+    "file": "notes-source/reviewer-m5.txt",
+    "original_sha256": "212f94d657cfde3498e9bd3caf2a357b32f3b8bd9a0fa4ef4eab5ede0440fd07",
+    "original_crlf": true,
+    "replacements": [
+      [
+        "#### Key terms — identify the job",
+        "#### Key terms and meanings"
+      ],
+      [
+        "#### Apply the concepts: transfer the idea, check the API",
+        "#### Workflow notes: Laravel file and response connections"
+      ],
+      [
+        "These situations reuse the MVC responsibilities while keeping Laravel’s own syntax and file map.",
+        "The MVC responsibilities remain familiar while Laravel uses its own file locations and APIs."
+      ],
+      [
+        "**Situation 1 — A nested Laravel view does not load.**",
+        "##### Nested Blade view identifiers"
+      ],
+      [
+        "**Situation 2 — Different task URLs display the same fixed ID.**",
+        "##### Using the route parameter in the response"
+      ],
+      [
+        "**Situation 3 — A controller exists, but its intended page is unreachable.**",
+        "##### The route, controller, action, and response"
+      ],
+      [
+        "**Exam cue:**",
+        "**Key connection:**"
+      ]
+    ]
+  },
+  "6": {
+    "file": "notes-source/reviewer-m6.txt",
+    "original_sha256": "b37868d4f761afa5a3f717796141e1289ff7344b1ad764763b0bba74a7eccded",
+    "original_crlf": true,
+    "replacements": [
+      [
+        "#### Key terms — identify the job",
+        "#### Key terms and meanings"
+      ],
+      [
+        "#### Apply the concepts: diagnose schema, records, and results",
+        "#### Workflow notes: schema, sample records, and model results"
+      ],
+      [
+        "These situations connect setup operations to the data that the page actually needs.",
+        "Database setup and retrieval produce different results at different stages."
+      ],
+      [
+        "**Situation 1 — The list is empty after a fresh local setup.**",
+        "##### Schema and seed records in a new local database"
+      ],
+      [
+        "**Situation 2 — The action needs one record, but the code returns a collection.**",
+        "##### Collections, single models, and counts"
+      ],
+      [
+        "**Situation 3 — A model write receives a bad title.**",
+        "##### Schema, writable fields, and validation"
+      ],
+      [
+        "**Exam cue:**",
+        "**Key connection:**"
+      ]
+    ]
+  },
+  "7": {
+    "file": "notes-source/reviewer-m7.txt",
+    "original_sha256": "bdc8514e7605eb806666c25f71f73811d490d3731dd7880f1d08e8caff22d426",
+    "original_crlf": true,
+    "replacements": [
+      [
+        "#### Key terms — identify the job",
+        "#### Key terms and meanings"
+      ],
+      [
+        "#### Apply the concepts: preserve the record and its attachment",
+        "#### Workflow notes: record updates and attachment storage"
+      ],
+      [
+        "These situations apply the module’s form, binding, validation, and storage sequence.",
+        "Record selection, access, validation, and storage each have a separate responsibility."
+      ],
+      [
+        "**Situation 1 — The edit form cannot reach its PATCH action.**",
+        "##### The POST form that expresses a PATCH update"
+      ],
+      [
+        "**Situation 2 — Replacing an image removes the old image, then fails.**",
+        "##### Preserving an attachment during replacement"
+      ],
+      [
+        "**Situation 3 — The stored file exists, but the public image is broken.**",
+        "##### The stored path and the public image URL"
+      ],
+      [
+        "**Exam cue:**",
+        "**Key connection:**"
+      ]
+    ]
+  },
+  "8": {
+    "file": "notes-source/reviewer-m8.txt",
+    "original_sha256": "06ffcbfd2023dfb75df8b3d71aa7545382939a58d8458bd83678bf76c3129c4e",
+    "original_crlf": true,
+    "replacements": [
+      [
+        "#### Key terms — identify the job",
+        "#### Key terms and meanings"
+      ],
+      [
+        "#### Apply the concepts: connect CRUD, access, and notification",
+        "#### Workflow notes: resource actions, access, and email"
+      ],
+      [
+        "These situations combine the responsibilities already taught across the Laravel modules.",
+        "A complete resource workflow connects record operations, access checks, and notification conditions."
+      ],
+      [
+        "**Situation 1 — The user’s list is private, but a guessed task URL exposes another record.**",
+        "##### Private lists and individual-record permissions"
+      ],
+      [
+        "**Situation 2 — A completed task sends another completion email after a title edit.**",
+        "##### Sending on a status transition"
+      ],
+      [
+        "**Situation 3 — The email preview renders, but sending fails.**",
+        "##### Mail content, recipient, transport, and trigger"
+      ],
+      [
+        "**Exam cue:**",
+        "**Key connection:**"
+      ],
+      [
+        "| State before save | State after save | Status changed? | Completion trigger? |",
+        "| State before save | State after save | Status change | Completion notification |"
+      ]
+    ]
+  }
+}

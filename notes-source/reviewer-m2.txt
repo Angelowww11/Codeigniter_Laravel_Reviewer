@@ -1,7 +1,7 @@
 ### 2.1 What the database adds
 <p class="page-range">PDF pages 1–9 · Objectives, persistent records, schema, and sample data</p>
 
-#### Key terms — identify the job
+#### Key terms and meanings
 
 - **Schema** — The tables, columns, types, and constraints in the database.
 - **Primary key** — The unique row identifier; it is not the row’s position in a list.
@@ -255,11 +255,11 @@ For the sample records, `/tasks/3` displays `Fix login bug` with status `done`.
 
 <mark>Escaping query values and escaping HTML output are separate operations.</mark> The query tool handles normal query values. `esc()` handles displayed text in the view. Neither operation replaces the application's validation rules.
 
-#### Apply the concepts: distinguish the result you need
+#### Workflow notes: the data retrieval sequence
 
-These worked situations use the module’s database and model responsibilities with new record values.
+The following explanations connect database configuration, model retrieval, and the returned page.
 
-**Situation 1 — Show three pending tasks, newest first.**
+##### Filtering, ordering, limiting, and retrieving rows
 
 1. Select the model for the tasks table.
 2. Filter the status to `pending`.
@@ -274,9 +274,9 @@ $tasks = $model->where('status', 'pending')
     ->findAll();
 ```
 
-**Reason:** filtering answers “which rows?” Ordering answers “in which order?” Limiting answers “how many at most?” Retrieval actually returns the rows.
+**Explanation:** filtering selects the matching rows. Ordering sets their sequence. Limiting caps the result count. Retrieval executes the query and returns the rows.
 
-**Situation 2 — A details URL requests a missing task.**
+##### A missing task on a details page
 
 1. Call `find($id)` for the selected primary key.
 2. Check whether the result is `null`.
@@ -284,11 +284,11 @@ $tasks = $model->where('status', 'pending')
 
 **Result:** do not substitute the first available row. That would display a different task from the one requested.
 
-**Situation 3 — The page works, but the database test fails.**
+##### Connection errors and presentation errors
 
 - **Connection refused** — check the service and configured address/port.
 - **Unknown database** — check whether the configured database exists.
 - **Access denied** — check the account, password, and permitted access.
 - **Correct records but wrong display** — inspect the view-data key, row shape, and escaped output.
 
-**Exam cue:** separate connection, query, result shape, and presentation. A working welcome page does not prove that the database works.
+**Key connection:** separate connection, query, result shape, and presentation. A working welcome page does not prove that the database works.

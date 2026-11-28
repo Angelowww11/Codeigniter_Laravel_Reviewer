@@ -1,7 +1,7 @@
 ### 8.1 A resource controller gives CRUD a standard map
 <p class="page-range">PDF pages 1–10 · Objectives, generation, resource routes, and method map</p>
 
-#### Key terms — identify the job
+#### Key terms and meanings
 
 - **Resource controller** — A controller with the standard CRUD action names.
 - **Resource route** — The conventional URL-and-method map to those actions.
@@ -326,11 +326,11 @@ The controller's `return back()->with('status', 'Status updated')` creates redir
 
 The source's final checklist adds four operational checks: avoid duplicate resource routes, scope private records, keep SMTP secrets out of screenshots, and send mail after the update succeeds. These checks belong to the complete workflow, not only its demonstration screen.
 
-#### Apply the concepts: connect CRUD, access, and notification
+#### Workflow notes: resource actions, access, and email
 
-These situations combine the responsibilities already taught across the Laravel modules.
+A complete resource workflow connects record operations, access checks, and notification conditions.
 
-**Situation 1 — The user’s list is private, but a guessed task URL exposes another record.**
+##### Private lists and individual-record permissions
 
 1. Confirm that authentication protects the request.
 2. Check how the selected task is resolved.
@@ -339,9 +339,9 @@ These situations combine the responsibilities already taught across the Laravel 
 
 **Reason:** a scoped index limits one query. It does not automatically authorize later requests to individual IDs.
 
-**Situation 2 — A completed task sends another completion email after a title edit.**
+##### Sending on a status transition
 
-| State before save | State after save | Status changed? | Completion trigger? |
+| State before save | State after save | Status change | Completion notification |
 | --- | --- | --- | --- |
 | pending | done | Yes | Yes, after the save succeeds |
 | done | done | No | No |
@@ -355,11 +355,11 @@ These situations combine the responsibilities already taught across the Laravel 
 
 **Reason:** “is done” and “became done” describe different conditions. This trigger does not alone guarantee exactly-once delivery under every retry.
 
-**Situation 3 — The email preview renders, but sending fails.**
+##### Mail content, recipient, transport, and trigger
 
 - **Content:** the mailable and Markdown view build the message.
 - **Recipient:** `Mail::to(...)` selects the intended destination.
 - **Transport:** valid test-service settings establish the outgoing connection.
 - **Trigger:** the controller decides when the saved business change warrants sending.
 
-**Exam cue:** resource routes supply the map. Application code still supplies the checks, writes, and side effects. Do not infer a complete implementation from generated method names.
+**Key connection:** resource routes supply the map. Application code still supplies the checks, writes, and side effects. Do not infer a complete implementation from generated method names.

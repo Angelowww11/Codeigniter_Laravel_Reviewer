@@ -1,15 +1,15 @@
 ### 4.1 Sessions give separate requests continuity
 <p class="page-range">PDF pages 1–9 · Objectives, session data, and removal</p>
 
-#### Key terms — identify the job
+#### Key terms and meanings
 
 - **Session** — Small server-side state associated with a visitor across separate requests.
 - **Session cookie** — The browser’s identifier for the associated session; it is not the user’s stored password.
 - **Flash data** — Session data intended for the next-request feedback cycle.
 - **Password hash** — The stored password representation created by password_hash().
 - **Verification** — The password_verify() check of a candidate against its stored hash.
-- **Authentication** — The identity check: who is the visitor?
-- **Authorization** — The access decision: may this visitor perform this operation on this record?
+- **Authentication** — Verification of the visitor’s identity evidence.
+- **Authorization** — The decision that permits or denies a visitor’s operation on a particular record.
 - **Authentication filter** — A server-side gate attached to protected routes; its before() hook can stop the action.
 
 HTTP requests are separate exchanges.
@@ -185,7 +185,7 @@ $routes->get('/tasks', 'Tasks::index', ['filter' => 'auth']);
 
 <figure class="notes-flow"><ol><li><b>Request</b><span>GET /tasks</span></li><li><b>Auth filter</b><span>Check login state</span></li><li><b>Logged in</b><span>Run controller</span></li><li><b>Guest</b><span>Redirect to login instead</span></li></ol><figcaption>Figure 6. The last two boxes are alternative outcomes, not sequential actions. Based on M4, pp. 27–31.</figcaption></figure>
 
-<aside class="notes-important"><strong>Protect actions, not just page links</strong><p><mark>Every route requiring login needs the check, including write routes.</mark> Hiding an Edit or Delete control does not prevent a direct HTTP request. Authentication answers “logged in?”; role and record-ownership permissions need additional checks.</p></aside>
+<aside class="notes-important"><strong>Protect actions, not just page links</strong><p><mark>Every route requiring login needs the check, including write routes.</mark> Hiding an Edit or Delete control does not prevent a direct HTTP request. Authentication establishes the required login state; role and record-ownership permissions need additional checks.</p></aside>
 
 ### 4.6 Logout and the access-control check
 <p class="page-range">PDF page 26 and pages 33–36 · Logout, manual check, and recap</p>
@@ -251,11 +251,11 @@ The success message example belongs in `app/Views/tasks/index.php`. Match its fl
 
 <mark>Authentication is a complete request sequence.</mark> The login POST establishes session state. The redirect causes another request. The protected route's filter reads that saved state. Logout destroys it before the next protected request.
 
-#### Apply the concepts: trace login across requests
+#### Workflow notes: session-backed login and access
 
-These situations use the module’s session, password, and filter responsibilities.
+Session state connects the login request to the later protected request.
 
-**Situation 1 — A correct login immediately returns to the login page.**
+##### Login state across a redirect
 
 1. Check that the user lookup returns the intended stored account.
 2. Check the result of `password_verify()`.
@@ -264,14 +264,14 @@ These situations use the module’s session, password, and filter responsibiliti
 
 **Reason:** redirecting creates a new request. A local `$user` variable in the old action cannot establish identity for that new request.
 
-**Situation 2 — Logout removes the name, but protected requests still work.**
+##### Complete logout state
 
 - **Observed state:** `username` is removed, while `isLoggedIn` remains true.
 - **Filter decision:** the filter still sees a true login flag.
 - **Correction:** end the login session with the intended whole-session operation.
 - **Verification:** request the protected URL directly after logout.
 
-**Situation 3 — A logged-in visitor changes another person’s task.**
+##### Record ownership after login
 
 1. Separate identity from permission.
 2. The login filter proves only the identity state it checks.
@@ -280,4 +280,4 @@ These situations use the module’s session, password, and filter responsibiliti
 
 **Reason:** hiding a control does not stop a direct request. A passed password check does not grant ownership of every record.
 
-**Exam cue:** distinguish hashing, verification, session persistence, authentication, and authorization. Each answers a different question in the same request sequence.
+**Key connection:** distinguish hashing, verification, session persistence, authentication, and authorization. Each has a different responsibility in the same request sequence.
