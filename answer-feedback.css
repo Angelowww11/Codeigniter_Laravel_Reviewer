@@ -1,0 +1,12 @@
+/* Keep answer review in the existing reading flow and theme palette. */
+.answer-explanation{min-width:0;overflow-wrap:anywhere}
+.answer-explanation>h3,.answer-explanation>h4,.answer-mistake>h3,.answer-mistake>h4{font-family:inherit;font-size:1rem;line-height:1.5;letter-spacing:normal;color:var(--ink);margin:24px 0 8px}
+.answer-explanation p{line-height:1.85;margin:8px 0}
+.answer-explanation .answer-correct{color:var(--ink);margin:16px 0}
+.answer-mistake{padding:0 0 14px;margin:20px 0;border-top:1px solid var(--line);border-bottom:1px solid var(--line)}
+.answer-mistake>h3,.answer-mistake>h4{color:var(--danger-ink,var(--red))}
+.answer-chosen{color:var(--ink)}
+.answer-alternatives{padding-inline-start:22px;margin:12px 0 22px}
+.answer-alternatives>li{padding-inline-start:4px;margin:18px 0}
+.answer-alternatives strong{color:var(--ink)}
+.answer-explanation code{overflow-wrap:anywhere}

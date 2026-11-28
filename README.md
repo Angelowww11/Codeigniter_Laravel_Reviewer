@@ -67,8 +67,19 @@ Run the content checks after edits:
 
 ```sh
 node tools/check_question_bank.cjs
+node tools/check_answer_feedback.cjs
 node tools/check_code_format.cjs
 python tools/check_reviewer.py
 ```
 
 The checks verify the canonical bank, 60 questions and 24 applied checks per module, unique answers, PDF references, code escaping, Blade tokens, and exact source text in all 107 rendered code examples. Browser checks cover answer feedback, session completion, the 60-question limit, retired sessions, retained slide progress, dynamic lesson code colors, and mobile code scrolling.
+
+## Exam answer explanations
+
+All 480 questions include a rewritten correct-answer explanation and an authored explanation for each incorrect choice. After submission, an exam review identifies the selected mistake and explains the remaining options. Practice quizzes and revealed question-bank answers use the same explanations. Active timed exams keep explanations and grading hidden until submission.
+
+Explanations are matched to choice text, so shuffling cannot attach a reason to the wrong option. Eight ambiguous items receive revised IDs; unchanged questions retain their IDs and saved records. The full notes, course PDFs, and original slides remain intact.
+
+Edit the authored reasoning in `tools/add_answer_explanations.py`. Run `python tools/add_answer_explanations.py`, then `python tools/expand_questions.py` to update the canonical bank and deployed data. Run `node tools/check_answer_feedback.cjs` to check every option and selected-answer state. `tools/check_exam_feedback.browser.js` checks a two-question rehearsal with one wrong answer and one correct answer.
+
+API overlap corrections were checked against the official [CodeIgniter model reference](https://codeigniter4.github.io/userguide/models/model.html#find) and [session reference](https://codeigniter4.github.io/userguide/libraries/sessions.html#flashdata). The result-shape explanations distinguish Laravel collection retrieval from single-record, count, and existence operations.
